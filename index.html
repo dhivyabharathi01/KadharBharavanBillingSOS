@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#185c4d" />
+  <title>Kadhar Bhavan Billing</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <section class="auth-gate" id="authGate" hidden>
+    <div class="auth-card">
+      <span class="brand-mark auth-mark">க</span>
+      <p class="eyebrow">KADHAR BHAVAN TEXTILE POS</p>
+      <h1 id="authHeading">Welcome</h1>
+
+      <!-- Tab switcher -->
+      <div class="auth-tabs" id="authTabs">
+        <button class="auth-tab active" id="tabRegister" type="button">Register shop</button>
+        <button class="auth-tab" id="tabLogin" type="button">Sign in</button>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <form id="registerForm" class="auth-form">
+        <p class="subheading">Set up your shop in 30 seconds.</p>
+        <fieldset class="form-section">
+          <legend>Shop details</legend>
+          <label>Shop name<input id="regShopName" required placeholder="e.g. Kadhar Bhavan Textiles" /></label>
+          <label>UPI ID <small class="req-note">(shown on every bill)</small><input id="regUpi" required autocomplete="off" placeholder="shopname@upi" /></label>
+          <label>Address <small>(optional)</small><input id="regAddress" placeholder="Street, City" /></label>
+          <label>Phone <small>(optional)</small><input id="regPhone" inputmode="tel" placeholder="+91 98765 43210" /></label>
+        </fieldset>
+        <fieldset class="form-section" id="cloudRegFields">
+          <legend>Your account</legend>
+          <label>Your name<input id="regDisplayName" required placeholder="e.g. Thangavel" /></label>
+          <label>Email<input id="regEmail" type="email" autocomplete="username" required placeholder="owner@example.com" /></label>
+          <label>Password<input id="regPassword" type="password" autocomplete="new-password" required minlength="8" placeholder="Min. 8 characters" /></label>
+        </fieldset>
+        <button class="primary-button" type="submit" id="registerButton">Register &amp; get started</button>
+        <p class="auth-error" id="registerError" role="alert"></p>
+        <p class="auth-switch">Already have an account? <button type="button" class="text-button" id="switchToLogin">Sign in</button></p>
+      </form>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" class="auth-form" hidden>
+        <p class="subheading">Use your individual shop account.</p>
+        <label>Email<input id="loginEmail" type="email" autocomplete="username" required placeholder="staff@example.com" /></label>
+        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required /></label>
+        <button class="primary-button" type="submit" id="loginButton">Sign in</button>
+        <p class="auth-error" id="authError" role="alert"></p>
+        <p class="auth-switch">New here? <button type="button" class="text-button" id="switchToRegister">Register your shop</button></p>
+      </form>
+    </div>
+  </section>
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar">
+      <a class="brand" href="#home" aria-label="Kadhar Bhavan home"><span class="brand-mark">KB</span><span><b>Kadhar Bhavan</b><small>Billing desk</small></span></a>
+      <div class="shop-chip"><span class="live-dot"></span><span><b>Current shop</b><small>Choose a shop in the top bar</small></span><span class="chevron">⌄</span></div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-link active" data-view="billing"><span>▣</span><span data-t="navBilling">Billing</span></button>
+        <button class="nav-link" data-view="items"><span>◫</span><span data-t="navItems">Items</span></button>
+        <button class="nav-link" data-view="history"><span>◷</span><span data-t="navHistory">Bill history</span></button>
+      </nav>
+      <div class="sidebar-bottom"><div class="sync-card"><span class="sync-icon">↻</span><div><b data-t="localMode">This device</b><small data-t="localDesc">Bills are saved in this browser</small></div></div><div class="user-row"><span class="avatar" id="avatar">TC</span><div><b id="staffName">Thangavel</b><small data-t="staffRole">Shop staff</small></div><button id="staffMenu" class="icon-btn" title="Choose staff">···</button></div></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div class="mobile-brand"><span class="brand-mark">க</span><span><b>கதர் பவன்</b><small>Kadhar Bhavan Textile POS</small></span></div><div class="crumb"><span id="shopLabel" data-t="shopLabel">Main shop</span><span class="slash">/</span><b id="pageTitle">Billing</b></div><nav class="desktop-nav" aria-label="Main navigation"><button data-view="billing" class="active"><span data-t="navBilling">Billing</span></button><button data-view="items"><span data-t="navItems">Items</span></button><button data-view="history"><span data-t="navHistory">Bill history</span></button></nav><label class="shop-switch" id="shopSwitch" hidden><span>SHOP</span><select id="shopSelect" aria-label="Select shop"></select></label><button class="shop-settings-button" id="shopSettingsButton" hidden>Shop setup</button><span class="sync-status" id="syncStatus" hidden></span><div class="top-actions"><span class="today" id="today"></span><button class="language" id="languageBtn">தமிழ் / EN</button><button class="shop-settings-button" id="localShopSetupBtn" hidden>⚙ Shop setup</button><span class="staff-label" id="staffDisplayName"></span><button class="avatar top-avatar" id="staffTop" title="Choose staff">TC</button><button class="signout-button" id="signOut" hidden>Sign out</button></div></header>
+      <section class="view active" id="view-billing">
+        <div class="page-heading"><div><p class="eyebrow" data-t="counterEyebrow">THE COUNTER</p><h1 data-t="newBill">Create a bill</h1><p class="subheading" data-t="billSubtitle">Add items, review the total, and share the receipt.</p></div><div class="bill-number"><span data-t="billNo">BILL NO.</span><b id="billNo">KB-0001</b></div></div>
+        <div class="workspace">
+          <div class="left-column">
+            <section class="panel customer-panel"><div class="section-title"><span class="step">01</span><div><h2 data-t="customer">Customer</h2><p data-t="optionalCustomer">Details are optional</p></div><span class="optional" data-t="optional">OPTIONAL</span></div><div class="customer-fields"><label><span data-t="customerName">Name</span><input id="customerName" placeholder="Walk-in customer" data-ph="customerPlaceholder" /></label><label><span data-t="mobile">Mobile number</span><input id="customerMobile" inputmode="tel" placeholder="+91" /></label></div></section>
+            <section class="panel item-panel"><div class="section-title"><span class="step">02</span><div><h2 data-t="addItems">Add items</h2><p data-t="chooseCatalog">Choose from your shop items</p></div><button class="text-button" id="addItemShortcut">＋ <span data-t="newItem">New item</span></button></div><div class="search-wrap"><span>⌕</span><input id="itemSearch" placeholder="Search items…" data-ph="searchItems" /><kbd>⌘ K</kbd></div><div id="catalog" class="catalog"></div></section>
+          </div>
+          <section class="panel bill-panel"><div class="bill-panel-head"><div><p class="eyebrow" data-t="currentBill">CURRENT BILL</p><h2 data-t="billSummary">Bill summary</h2></div><button class="clear-button" id="clearBill" data-t="clear">Clear</button></div><div class="bill-lines" id="billLines"><div class="empty-state"><span class="basket">▱</span><b data-t="emptyBill">Your bill is empty</b><small data-t="emptyBillHint">Add items from the list to begin.</small></div></div><div class="discount-field"><label for="billDiscount" data-t="billDiscount">Bill discount</label><div class="money-input"><span>₹</span><input id="billDiscount" type="number" min="0" step="1" value="0" /><span class="discount-caption" data-t="onSubtotal">on subtotal</span></div></div><div class="totals"><div><span data-t="subtotal">Subtotal</span><b id="subtotal">₹0.00</b></div><div><span data-t="discount">Discount</span><b class="discount-value" id="discountTotal">− ₹0.00</b></div><div class="grand-total"><span data-t="grandTotal">Grand total</span><b id="grandTotal">₹0.00</b></div></div><button class="primary-button" id="saveBill"><span>✓</span><span data-t="saveBill">Save bill</span><span class="button-total" id="buttonTotal">₹0.00</span></button><p class="secure-note"><span>●</span> <span data-t="savedLocally">Saved on this device</span></p></section>
+        </div>
+      </section>
+      <section class="view" id="view-items"><div class="page-heading"><div><p class="eyebrow" data-t="catalogEyebrow">YOUR CATALOG</p><h1 data-t="yourItems">Your items</h1><p class="subheading" data-t="itemsSubtitle">Manage the items you sell in the shop.</p></div><button class="primary-button small" id="addItemButton">＋ <span data-t="addNewItem">Add new item</span></button></div><section class="panel table-panel"><div class="table-head"><span data-t="itemName">ITEM</span><span data-t="price">PRICE</span><span data-t="action">ACTION</span></div><div id="itemsTable"></div></section></section>
+      <section class="view" id="view-history"><div class="page-heading"><div><p class="eyebrow" data-t="recentActivity">RECENT ACTIVITY</p><h1 data-t="billHistory">Bill history</h1><p class="subheading" data-t="historySubtitle">Bills created on this device.</p></div></div><section class="panel table-panel"><div class="table-head history-head"><span data-t="billNo">BILL NO.</span><span data-t="customer">CUSTOMER</span><span data-t="date">DATE</span><span data-t="grandTotal">TOTAL</span><span data-t="action">ACTION</span></div><div id="historyTable"></div></section></section>
+      <footer class="footnote"><span>✦</span><span data-t="footerText">Made for a smoother day at the counter.</span></footer>
+    </main>
+  </div>
+  <div class="mobile-nav"><button data-view="billing" class="active"><span>▣</span><small data-t="navBilling">Billing</small></button><button data-view="items"><span>◫</span><small data-t="navItems">Items</small></button><button data-view="history"><span>◷</span><small data-t="navHistory">History</small></button></div>
+  <dialog id="itemDialog"><form method="dialog" id="itemForm"><button class="dialog-close" value="cancel" aria-label="Close">×</button><p class="eyebrow" data-t="catalogEyebrow">YOUR CATALOG</p><h2 data-t="addNewItem">Add new item</h2><label><span data-t="itemNameEnglish">Item name</span><input id="newItemName" required placeholder="e.g. Cotton vesti" /></label><label><span data-t="itemNameTamil">Tamil name (optional)</span><input id="newItemTamil" placeholder="தமிழில் பெயர்" /></label><label><span data-t="priceRupees">Price (₹)</span><input id="newItemPrice" type="number" min="0.01" step="0.01" required placeholder="0.00" /></label><div class="dialog-actions"><button type="button" class="secondary-button" id="cancelItem" data-t="cancel">Cancel</button><button class="primary-button small" id="saveItem" data-t="saveItem">Save item</button></div></form></dialog>
+  <dialog id="staffDialog"><form method="dialog"><button class="dialog-close" value="cancel">×</button><p class="eyebrow" data-t="staffDemo">STAFF PREVIEW</p><h2 data-t="chooseStaff">Choose staff</h2><p class="subheading" data-t="staffDemoHint">This preview lets you switch the bill label. Separate logins are enabled when cloud sync is connected.</p><div class="staff-options" id="staffOptions"></div></form></dialog>
+  <dialog id="shopDialog" class="dialog"><form method="dialog" id="shopManagementForm"><button class="dialog-close" value="cancel" aria-label="Close">×</button><p class="eyebrow">OWNER CONTROL</p><h2 id="shopDialogTitle">Shop setup</h2><p class="subheading" id="shopUpiCurrent">UPI ID not added</p><label><span>UPI ID</span><input id="shopUpiInput" autocomplete="off" placeholder="shopname@upi" /></label><button type="button" class="primary-button small" id="saveShopUpi">Save UPI ID</button><p id="upiHelp" class="subheading"></p><section id="upiRequestsPanel" hidden><h3>UPI change requests</h3><div id="upiRequestsList"></div></section><details id="registerShopPanel" hidden open><summary>➕ Register another shop</summary><label><span>Shop name</span><input id="newShopName" required /></label><label><span>UPI ID <small style="color:#e05">(required — shown on bill)</small></span><input id="newShopUpi" required autocomplete="off" placeholder="shopname@upi" /></label><label><span>Address (optional)</span><input id="newShopAddress" /></label><label><span>Phone (optional)</span><input id="newShopPhone" inputmode="tel" /></label><button type="button" class="primary-button small" id="registerShopButton">Register shop</button></details><p class="auth-error" id="shopError" role="alert"></p></form></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <dialog id="localShopDialog" class="dialog"><form method="dialog" id="localShopForm"><button class="dialog-close" value="cancel" aria-label="Close">×</button><p class="eyebrow">SHOP SETUP</p><h2>Your shop details</h2><p class="subheading">These details appear on every printed bill.</p><label><span>Shop name</span><input id="localShopName" required placeholder="e.g. Kadhar Bhavan" /></label><label><span>UPI ID <small style="color:#e05">(shown as QR on bill)</small></span><input id="localShopUpi" autocomplete="off" placeholder="shopname@bank" /></label><label><span>Address (optional)</span><input id="localShopAddress" placeholder="Street, City" /></label><label><span>Phone (optional)</span><input id="localShopPhone" inputmode="tel" placeholder="+91 98765 43210" /></label><div class="dialog-actions"><button type="button" class="secondary-button" id="cancelLocalShop">Cancel</button><button type="button" class="primary-button small" id="saveLocalShop">Save details</button></div><p class="auth-error" id="localShopError" role="alert"></p></form></dialog>
+  <script src="config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="receipt-pdf.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
