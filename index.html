@@ -12,44 +12,47 @@
   <section class="auth-gate" id="authGate" hidden>
     <div class="auth-card">
       <span class="brand-mark auth-mark">க</span>
-      <p class="eyebrow">KADHAR BHAVAN TEXTILE POS</p>
+      <div class="auth-topline">
+        <p class="eyebrow" data-t="authBrand">KADHAR BHAVAN TEXTILE POS</p>
+        <button class="language" id="authLanguageBtn" type="button" aria-label="Change language">தமிழ்</button>
+      </div>
       <h1 id="authHeading">Welcome</h1>
 
       <!-- Tab switcher -->
       <div class="auth-tabs" id="authTabs">
-        <button class="auth-tab active" id="tabRegister" type="button">Register shop</button>
-        <button class="auth-tab" id="tabLogin" type="button">Sign in</button>
+        <button class="auth-tab active" id="tabRegister" type="button" data-t="authRegisterTab">Register shop</button>
+        <button class="auth-tab" id="tabLogin" type="button" data-t="authSignInTab">Sign in</button>
       </div>
 
       <!-- REGISTER FORM -->
       <form id="registerForm" class="auth-form">
-        <p class="subheading">Set up your shop in 30 seconds.</p>
+        <p class="subheading" data-t="authRegisterHint">Set up your shop in 30 seconds.</p>
         <fieldset class="form-section">
-          <legend>Shop details</legend>
-          <label>Shop name<input id="regShopName" required placeholder="e.g. Kadhar Bhavan Textiles" /></label>
-          <label>UPI ID <small class="req-note">(shown on every bill)</small><input id="regUpi" required autocomplete="off" placeholder="shopname@upi" /></label>
-          <label>Address <small>(optional)</small><input id="regAddress" placeholder="Street, City" /></label>
-          <label>Phone <small>(optional)</small><input id="regPhone" inputmode="tel" placeholder="+91 98765 43210" /></label>
+          <legend data-t="authShopDetails">Shop details</legend>
+          <label><span data-t="authShopName">Shop name</span><input id="regShopName" data-ph="authShopPlaceholder" required placeholder="e.g. Kadhar Bhavan Textiles" /></label>
+          <label><span data-t="authUpiId">UPI ID</span> <small class="req-note" data-t="authUpiNote">(shown on every bill)</small><input id="regUpi" data-ph="authUpiPlaceholder" required autocomplete="off" placeholder="shopname@upi" /></label>
+          <label><span data-t="authAddress">Address</span> <small data-t="authOptional">(optional)</small><input id="regAddress" data-ph="authAddressPlaceholder" placeholder="Street, City" /></label>
+          <label><span data-t="authPhone">Phone</span> <small data-t="authOptional">(optional)</small><input id="regPhone" data-ph="authPhonePlaceholder" inputmode="tel" placeholder="+91 98765 43210" /></label>
         </fieldset>
         <fieldset class="form-section" id="cloudRegFields">
-          <legend>Your account</legend>
-          <label>Your name<input id="regDisplayName" required placeholder="e.g. Thangavel" /></label>
-          <label>Email<input id="regEmail" type="email" autocomplete="username" required placeholder="owner@example.com" /></label>
-          <label>Password<input id="regPassword" type="password" autocomplete="new-password" required minlength="8" placeholder="Min. 8 characters" /></label>
+          <legend data-t="authAccount">Your account</legend>
+          <label><span data-t="authYourName">Your name</span><input id="regDisplayName" data-ph="authNamePlaceholder" required placeholder="e.g. Thangavel" /></label>
+          <label><span data-t="authEmail">Email</span><input id="regEmail" data-ph="authEmailPlaceholder" type="email" autocomplete="username" required placeholder="owner@example.com" /></label>
+          <label><span data-t="authPassword">Password</span><input id="regPassword" data-ph="authPasswordHint" type="password" autocomplete="new-password" required minlength="8" placeholder="Min. 8 characters" /></label>
         </fieldset>
-        <button class="primary-button" type="submit" id="registerButton">Register &amp; get started</button>
+        <button class="primary-button" type="submit" id="registerButton" data-t="authRegisterButton">Register &amp; get started</button>
         <p class="auth-error" id="registerError" role="alert"></p>
-        <p class="auth-switch">Already have an account? <button type="button" class="text-button" id="switchToLogin">Sign in</button></p>
+        <p class="auth-switch"><span data-t="authAlreadyAccount">Already have an account?</span> <button type="button" class="text-button" id="switchToLogin" data-t="authSignInTab">Sign in</button></p>
       </form>
 
       <!-- LOGIN FORM -->
       <form id="loginForm" class="auth-form" hidden>
-        <p class="subheading">Use your individual shop account.</p>
-        <label>Email<input id="loginEmail" type="email" autocomplete="username" required placeholder="staff@example.com" /></label>
-        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required /></label>
-        <button class="primary-button" type="submit" id="loginButton">Sign in</button>
+        <p class="subheading" data-t="authLoginHint">Use your individual shop account.</p>
+        <label><span data-t="authEmail">Email</span><input id="loginEmail" data-ph="authStaffEmailPlaceholder" type="email" autocomplete="username" required placeholder="staff@example.com" /></label>
+        <label><span data-t="authPassword">Password</span><input id="loginPassword" type="password" autocomplete="current-password" required /></label>
+        <button class="primary-button" type="submit" id="loginButton" data-t="authSignInTab">Sign in</button>
         <p class="auth-error" id="authError" role="alert"></p>
-        <p class="auth-switch">New here? <button type="button" class="text-button" id="switchToRegister">Register your shop</button></p>
+        <p class="auth-switch"><span data-t="authNewHere">New here?</span> <button type="button" class="text-button" id="switchToRegister" data-t="authRegisterLink">Register your shop</button></p>
       </form>
     </div>
   </section>

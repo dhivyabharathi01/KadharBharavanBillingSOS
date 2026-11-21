@@ -242,7 +242,6 @@ begin
 end;
 $$;
 
-revoke all on function public.create_shop_bill(uuid,text,text,numeric,jsonb) from public,anon;
 revoke all on function public.create_shop_bill(uuid,text,text,numeric,jsonb,uuid) from public,anon;
 grant execute on function public.create_shop_bill(uuid,text,text,numeric,jsonb,uuid) to authenticated;
 
@@ -298,4 +297,3 @@ $$;
 
 revoke all on function public.register_owner(text,text,text,text,text,text) from public,anon;
 grant execute on function public.register_owner(text,text,text,text,text,text) to authenticated;
-

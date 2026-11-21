@@ -1,4 +1,4 @@
-const CACHE='kb-billing-shell-v5';
+const CACHE='kb-billing-shell-v10';
 const QR_LIB='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
 const FILES=['./','./index.html','./styles.css','./app.js','./receipt-pdf.js','./config.js','./manifest.webmanifest'];
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);await cache.addAll(FILES);try{const response=await fetch(QR_LIB,{mode:'cors'});if(response.ok)await cache.put(QR_LIB,response)}catch{}await self.skipWaiting()})()));
