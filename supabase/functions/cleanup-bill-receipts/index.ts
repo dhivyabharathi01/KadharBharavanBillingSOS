@@ -90,7 +90,16 @@ Deno.serve(async (request) => {
       deleted += Math.min(1000, expired.length - index);
     }
 
-    return respond(200, { deleted, cutoff: new Date(cutoff).toISOString() });
+    const linksResponse = await fetch(
+      `${projectUrl}/rest/v1/bill_receipt_links?expires_at=lt.${encodeURIComponent(new Date().toISOString())}`,
+      { method: "DELETE", headers: { ...headers, Prefer: "return=representation" } },
+    );
+    const links = await linksResponse.json().catch(() => null);
+    if (!linksResponse.ok || !Array.isArray(links)) {
+      throw new Error("Could not remove expired receipt links");
+    }
+
+    return respond(200, { deleted, expiredLinksDeleted: links.length, cutoff: new Date(cutoff).toISOString() });
   } catch (error) {
     console.error("Bill receipt cleanup failed", error);
     return respond(500, { error: "Bill receipt cleanup failed" });

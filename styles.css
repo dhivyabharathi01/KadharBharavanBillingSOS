@@ -401,3 +401,136 @@ button{line-height:1.35;overflow-wrap:anywhere}
 .role-badge[hidden],#shopSettingsButton[hidden]{display:none!important}
 #shopSettingsButton:not([hidden]){display:inline-flex;align-items:center}
 @media(max-width:800px){.history-actions{grid-column:1/-1}.history-actions .row-action{min-height:38px}}
+
+/* Unified warm retail theme and responsive application chrome. */
+:root{--green:#842b12;--green2:#9d3b1c;--mint:#fbe9df;--ink:#2b211b;--muted:#806d61;--line:#ead9c8;--bg:#fbf6ee;--shadow:0 10px 28px rgba(67,39,23,.07)}
+body{background:radial-gradient(ellipse at 92% 8%,#f3e5d4 0,transparent 30%),var(--bg);color:var(--ink)}
+.topbar{min-height:72px;height:auto;gap:12px;background:rgba(255,255,255,.94);border-bottom-color:#eadfd3;box-shadow:0 5px 20px rgba(67,39,23,.045);backdrop-filter:blur(14px)}
+.mobile-brand{color:#5d2411}
+.mobile-brand .brand-mark{background:linear-gradient(145deg,#a84721,#76230c);box-shadow:0 5px 12px rgba(132,43,18,.2)}
+.desktop-nav{gap:2px}
+.desktop-nav button{padding:0 13px;border-radius:10px 10px 0 0;transition:background .18s,color .18s}
+.desktop-nav button:hover{background:#fff8f1;color:#842b12}
+.desktop-nav button.active{background:#fff8f1}
+.shop-switch,.shop-settings-button{transition:border-color .18s,background .18s,box-shadow .18s}
+.shop-switch:focus-within,.shop-settings-button:focus-visible,.language:focus-visible{outline:3px solid #e8b99a;outline-offset:2px}
+.shop-settings-button{border-radius:10px}
+.main{padding-bottom:42px}
+.page-heading{padding-top:30px}
+.page-heading h1{color:#64230f}
+.eyebrow{color:#a46b46}
+.workspace{gap:18px}
+.panel{border-radius:16px;border-color:#eadfd1;box-shadow:0 8px 24px rgba(67,39,23,.055)}
+.customer-panel,.item-panel,.bill-panel{padding:19px}
+.customer-panel{background:linear-gradient(135deg,#fff 75%,#fff8f1)}
+.item-panel{background:#fff}
+.section-title h2,.bill-panel h2{color:#64230f}
+.step{width:30px;height:30px;border-radius:10px;background:#fff0e7;color:#842b12}
+.customer-fields input,.search-wrap,.dialog input{border-radius:10px}
+.customer-fields input:hover,.dialog input:hover{border-color:#d6b49b}
+.search-wrap{background:#fbf7f1;border-color:#eee1d4}
+.catalog-item{border-radius:12px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.catalog-item:hover{transform:translateY(-2px);border-color:#d5a28a;background:#fffaf6;box-shadow:0 7px 16px rgba(105,52,29,.08)}
+.item-thumb{background:#fff0e7;color:#842b12}
+.add-circle{background:#f8e8dc;color:#842b12}
+.bill-panel{border-top:4px solid #842b12;box-shadow:0 12px 30px rgba(67,39,23,.08)}
+.bill-panel-head{border-color:#eee3d7}
+.empty-state{border:1px dashed #e6d7c7;border-radius:12px;margin:12px 0;background:#fdfaf6}
+.bill-line{border-color:#f0e5da}
+.qty-control{border-radius:9px}
+.discount-field{border-color:#eee3d7}
+.totals{border-color:#eee3d7}
+.grand-total{border-color:#e4cdb9}
+.grand-total b{color:#842b12}
+.primary-button{min-height:46px;border-radius:11px;background:linear-gradient(135deg,#963816,#76230c);box-shadow:0 6px 15px rgba(132,43,18,.16);transition:transform .18s,box-shadow .18s,filter .18s}
+.primary-button:hover{background:linear-gradient(135deg,#a64622,#842b12);transform:translateY(-1px);box-shadow:0 9px 18px rgba(132,43,18,.2)}
+.primary-button:active{transform:translateY(0)}
+.primary-button:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.secondary-button{border-radius:10px;transition:background .18s,border-color .18s}
+.secondary-button:hover{background:#fff8f1;border-color:#d8b69b}
+.table-panel{border-radius:15px}
+.table-head{background:#fbf4eb;color:#876754}
+.table-row,.history-row{transition:background .15s}
+.table-row:hover,.history-row:hover{background:#fffaf5}
+.row-action{font-weight:700}
+.dialog{border-radius:20px}
+.dialog::backdrop{background:rgba(39,26,19,.48);backdrop-filter:blur(5px)}
+.toast{border:1px solid rgba(255,255,255,.16);background:#34251d;box-shadow:0 12px 32px rgba(39,26,19,.22)}
+.auth-gate{background:radial-gradient(ellipse at 50% 0%,#f2dfcc 0,#fbf6ee 58%,#f3eadc 100%)}
+.auth-card{border-color:#eadfd1;border-radius:22px;box-shadow:0 22px 64px rgba(67,39,23,.14)}
+.auth-mark{background:linear-gradient(145deg,#a84721,#76230c);color:#fff0e5}
+.auth-card h1{color:#64230f}
+.auth-card input{border-color:#e9ddcf;border-radius:10px;background:#fffdfa}
+.auth-card input:focus{border-color:#c58863;box-shadow:0 0 0 3px #f7e7d9}
+.form-section{border-color:#eee0d1;background:#fffdfa}
+.form-section legend{color:#842b12}
+.auth-tabs{background:#f8f1e8;border-color:#eadfd1}
+.auth-gate .auth-tabs .auth-tab.active{background:#842b12;color:#fff}
+.shop-profile-card,.upi-profile-card{margin:14px 0;padding:16px;border:1px solid #eee0d1;border-radius:14px;background:linear-gradient(145deg,#fffdfa,#fff7ee)}
+.shop-profile-heading{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.shop-profile-heading h3{margin:0;color:#64230f;font-size:15px}
+.shop-profile-heading .subheading{margin-top:4px;font-size:11px}
+.shop-profile-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#ffede1;color:#842b12}
+.shop-profile-card label,.upi-profile-card label{display:grid;gap:6px;margin:12px 0;color:#5f4b3e;font-size:11px;font-weight:650}
+.shop-profile-card input,.upi-profile-card input{min-height:44px;padding:11px 12px;border:1px solid #e9ddcf;border-radius:9px;background:#fff;font-size:13px}
+.shop-profile-card input:disabled{background:#f7f1e9;color:#75685f}
+.shop-profile-access{margin:8px 0;color:#806d61;font-size:11px}
+.shop-profile-card .primary-button,.upi-profile-card .primary-button{width:100%;margin-top:10px}
+#saveShopProfile[hidden]{display:none!important}
+.upi-profile-card>.eyebrow{margin-bottom:8px}
+.setup-tabs{gap:6px;padding:5px;border:1px solid #eadfd1;border-radius:12px;background:#f8f1e8}
+.setup-tab{border-radius:9px}
+.setup-tab.active{background:#fff;color:#842b12;box-shadow:0 2px 6px rgba(67,39,23,.08)}
+.cash-collected-option{border-color:#eee3d7}
+.secure-note{font-size:10px}
+.mobile-nav{background:rgba(255,255,255,.96);border-color:#eadfd1;box-shadow:0 -8px 24px rgba(67,39,23,.06);backdrop-filter:blur(12px)}
+.mobile-nav button{min-height:48px;border-radius:12px;transition:background .18s,color .18s}
+.mobile-nav button.active{background:#fff0e7;color:#842b12}
+.mobile-nav button span{font-size:19px}
+@media(max-width:1100px){
+ .topbar{display:grid;grid-template-columns:minmax(150px,1fr) auto auto;grid-template-areas:"brand nav settings" "shop sync actions";padding:8px 20px;row-gap:5px}
+ .mobile-brand{grid-area:brand}
+ .desktop-nav{grid-area:nav}
+ .shop-switch{grid-area:shop}
+ #shopSettingsButton{grid-area:settings}
+ .sync-status{grid-area:sync}
+ .top-actions{grid-area:actions}
+ .desktop-nav button{padding:0 9px;font-size:11px}
+ .top-actions{gap:8px}
+ .today,.staff-label,.role-badge{display:none}
+ .workspace{grid-template-columns:minmax(0,1.2fr) minmax(300px,.9fr)}
+}
+@media(max-width:800px){
+ .topbar{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand actions" "shop settings" "sync sync";padding:8px 14px;gap:6px}
+ .desktop-nav{display:none}
+ .signout-button{position:static;right:auto;top:auto}
+ .main{padding:0 14px 96px}
+ .mobile-brand .brand-mark{width:38px;height:38px;font-size:19px}
+ .top-actions{gap:6px}
+ .language{padding:8px;border-radius:9px}
+ .shop-switch{min-width:0;max-width:100%;padding:5px 8px}
+ .shop-switch select{max-width:130px}
+ #shopSettingsButton,.shop-settings-button{min-height:38px;padding:7px 10px;border-radius:9px;font-size:10px}
+ .sync-status{position:static;justify-self:start;margin:1px 0 3px;padding:4px 8px;border-radius:999px;background:#f3eadf}
+ .page-heading{padding:23px 0 15px}
+ .workspace{grid-template-columns:minmax(0,1fr);gap:12px}
+ .bill-panel{grid-row:1}
+ .left-column{grid-row:2}
+ .catalog{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .bill-lines{max-height:none}
+ .table-panel{overflow-x:auto}
+ .table-head,.table-row{min-width:460px}
+ .history-head,.history-row{min-width:570px}
+ .shop-profile-card,.upi-profile-card{padding:13px}
+}
+@media(max-width:430px){
+ .mobile-brand small{display:none}
+ .top-actions{gap:4px}
+ .shop-settings-button{padding:6px 7px;font-size:9px}
+ .page-heading h1{font-size:22px}
+ .catalog{grid-template-columns:1fr}
+ .catalog-item{min-height:78px}
+ .history-head,.history-row{min-width:540px}
+ .customer-fields{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}

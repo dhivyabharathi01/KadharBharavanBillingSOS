@@ -45,6 +45,16 @@ This checklist is for a test Supabase project. The schema supports one business 
    ```
 
    In `schedule-bill-receipt-cleanup.sql`, replace the cleanup-secret placeholder with the same secret, then run that SQL once in the SQL Editor. The project URL and publishable key are prefilled for this project. Do not commit the filled-in SQL or share the cleanup secret. The daily job removes PDFs older than 14 days; WhatsApp links expire after 7 days. Bill records remain in the database. The cleanup function uses the service-role key only on the server and checks the separate cleanup secret.
+
+For short WhatsApp links, deploy `bill-receipt-short-link` with JWT verification disabled and set the hosted app origin used for the payment page:
+
+```sh
+supabase functions deploy bill-receipt-short-link --no-verify-jwt
+supabase secrets set BILLING_APP_ORIGIN=https://kadharbharavanbillingsos.divyabharathithangavel.workers.dev
+supabase functions deploy cleanup-bill-receipts --no-verify-jwt
+```
+
+Run `update-shop-profile.sql` in the SQL Editor on existing projects to let owners update shop name, address, and phone. UPI changes continue through the existing owner-only RPC or staff approval flow. The short-link endpoint verifies the bill and shop membership before creating links; public redirects expire after seven days.
 6. Start the app over HTTP for local testing (use HTTPS when hosted). The shop selector switches among shops assigned to the signed-in user. Staff can create bills and view the item catalog; catalog changes and direct UPI updates are owner-only. Staff UPI requests remain subject to owner approval.
 7. Verify isolation with two test users: assign one only to Main shop and one only to Market Road shop. Add an item in Main shop. The Market Road user must not see it. Using that user’s signed-in session, a direct REST request for `items?shop_id=eq.MAIN_SHOP_UUID` should return no rows; attempting to insert/update with that shop UUID must be rejected by RLS. Also confirm a staff member cannot change an assigned shop's catalog or UPI directly, but can create a bill.
 8. Verify shared use by signing into the same shop on separate browsers or phones, adding an item on one, and confirming it appears on the others. Create a bill and check that it appears in that shop’s history.

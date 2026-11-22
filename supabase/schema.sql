@@ -163,6 +163,25 @@ begin
 end;
 $$;
 
+create or replace function public.update_shop_profile(
+  p_shop_id uuid,
+  p_name text,
+  p_address text,
+  p_phone text
+) returns void language plpgsql security definer set search_path = public
+as $$
+begin
+  if not public.is_shop_owner(p_shop_id) then raise exception 'Only the shop owner can update shop details'; end if;
+  if nullif(trim(p_name),'') is null then raise exception 'Shop name is required'; end if;
+  if length(trim(p_name)) > 120 or length(coalesce(p_address,'')) > 300 or length(coalesce(p_phone,'')) > 40 then
+    raise exception 'Shop details exceed the allowed length';
+  end if;
+  update public.shops
+    set name=trim(p_name),address=nullif(trim(p_address),''),phone=nullif(trim(p_phone),'')
+    where id=p_shop_id;
+end;
+$$;
+
 create or replace function public.add_shop_staff(p_shop_id uuid,p_email text,p_display_name text)
 returns uuid language plpgsql security definer set search_path = public
 as $$
@@ -288,6 +307,8 @@ revoke all on function public.register_business_shop(uuid,text,text,text,text) f
 grant execute on function public.register_business_shop(uuid,text,text,text,text) to authenticated;
 revoke all on function public.set_shop_upi_id(uuid,text) from public,anon;
 grant execute on function public.set_shop_upi_id(uuid,text) to authenticated;
+revoke all on function public.update_shop_profile(uuid,text,text,text) from public,anon;
+grant execute on function public.update_shop_profile(uuid,text,text,text) to authenticated;
 revoke all on function public.add_shop_staff(uuid,text,text) from public,anon;
 grant execute on function public.add_shop_staff(uuid,text,text) to authenticated;
 revoke all on function public.review_shop_upi_change(uuid,boolean) from public,anon;
