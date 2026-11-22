@@ -118,6 +118,10 @@ body .auth-gate{height:100vh;height:100dvh;align-items:flex-start;justify-conten
 .total-savings b{color:#34744c}
 .catalog-item-info small s,.line-sub s{margin-left:4px;color:#a0aaa4;font-weight:400}
 .catalog-item-info small em,.line-sub em{margin-left:4px;color:#a0522b;font-size:9px;font-style:normal;font-weight:700}
+.line-sub{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.bill-line-discount{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.bill-line-discount input{width:48px;min-height:23px;border:1px solid #e8ece9;border-radius:5px;padding:2px 4px;background:#fff;text-align:right;font:10px 'DM Sans','Noto Sans Tamil',sans-serif;color:var(--ink)}
+.primary-button:disabled{opacity:.65;cursor:wait}
 @media(max-width:800px){
   .main{padding:0 12px calc(72px + env(safe-area-inset-bottom))}
   .topbar{height:auto;min-height:58px;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;margin-left:-12px;margin-right:-12px;padding:8px 12px}

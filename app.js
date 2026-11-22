@@ -37,7 +37,7 @@ Object.assign(TEXT.en,{productName:'Nesavu',productSubtitle:'Premium Textile Bus
 Object.assign(TEXT.ta,{productName:'நெசவு',productSubtitle:'ஜவுளி வணிகத் தளம்'});
 Object.assign(AUTH_TEXT.en,{authBrand:'NESAVU | TEXTILE BUSINESS SUITE'});
 Object.assign(AUTH_TEXT.ta,{authBrand:'நெசவு | ஜவுளி வணிகத் தளம்'});
-let state=loadState(),lang=(localStorage.getItem('kb-language')||((state.languageSelected&&state.lang)||'ta'))==='en'?'en':'ta',staffIndex=state.staffIndex||0,cart=[],toastTimer,editingItemId=null,defaultPickerMode='catalog',catalogDefaultItems=new Set(),setupDefaultItems=new Set();const $=id=>document.getElementById(id);const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});const t=k=>AUTH_TEXT[lang][k]||TEXT[lang][k]||AUTH_TEXT.en[k]||TEXT.en[k]||k;
+let state=loadState(),lang=(localStorage.getItem('kb-language')||((state.languageSelected&&state.lang)||'ta'))==='en'?'en':'ta',staffIndex=state.staffIndex||0,cart=[],pendingItemDiscountUpdates=0,toastTimer,editingItemId=null,defaultPickerMode='catalog',catalogDefaultItems=new Set(),setupDefaultItems=new Set();const $=id=>document.getElementById(id);const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});const t=k=>AUTH_TEXT[lang][k]||TEXT[lang][k]||AUTH_TEXT.en[k]||TEXT.en[k]||k;
 const cloudConfig=window.KB_CONFIG||{},cloudEnabled=!!(cloudConfig.SUPABASE_URL&&cloudConfig.SUPABASE_PUBLISHABLE_KEY),AUTH_SESSION_KEY='kb-auth-session',AUTH_LAST_ACTIVITY_KEY='kb-auth-last-activity',AUTH_IDLE_TIMEOUT=60*60*1000;let cloudMode=false,cloudUpiRequests=[],cloudSession=JSON.parse(localStorage.getItem(AUTH_SESSION_KEY)||'null'),cloudShopId=null,cloudMember=null,cloudMembers=[],cloudShops=[],cloudLoadVersion=0,cloudOnline=false,authIdleTimer=null;
 function loadState(){try{return JSON.parse(localStorage.getItem('kb-billing-v1'))||{items:SEED_ITEMS,bills:[],nextNo:1}}catch{return{items:SEED_ITEMS,bills:[],nextNo:1}}}function persist(){state.lang=lang;state.staffIndex=staffIndex;if(!cloudMode)localStorage.setItem('kb-billing-v1',JSON.stringify(state))}function initials(n){return n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()}
 function loadLocalShop(){try{return JSON.parse(localStorage.getItem('kb-local-shop')||'null')||{name:'Kadhar Bhavan',upi_id:'',address:'',phone:''}}catch{return{name:'Kadhar Bhavan',upi_id:'',address:'',phone:''}}}
@@ -54,6 +54,8 @@ Object.assign(TEXT.en,{discountRate:'DISCOUNT %',receiptAmount:'AMOUNT'});
 Object.assign(TEXT.ta,{discountRate:'தள்ளுபடி %',receiptAmount:'தொகை'});
 Object.assign(TEXT.en,{receiptMrp:'MRP'});
 Object.assign(TEXT.ta,{receiptMrp:'MRP'});
+Object.assign(TEXT.en,{billItemDiscountInvalid:'Item discount must be between 0 and 100%.',catalogDiscountOnlineOnly:'Connect to the internet before changing the catalog discount.',catalogDiscountSaved:'Catalog discount updated for future bills.',catalogDiscountSaveFailed:'Could not save this catalog discount.',discountUpdatePending:'Wait for the item discount update to finish before saving the bill.'});
+Object.assign(TEXT.ta,{billItemDiscountInvalid:'பொருள் தள்ளுபடி 0 முதல் 100% வரை இருக்க வேண்டும்.',catalogDiscountOnlineOnly:'கேட்டலாக் தள்ளுபடியை மாற்ற இணையத்துடன் இணைக்கவும்.',catalogDiscountSaved:'எதிர்கால பில்களுக்கான கேட்டலாக் தள்ளுபடி புதுப்பிக்கப்பட்டது.',catalogDiscountSaveFailed:'இந்த கேட்டலாக் தள்ளுபடியைச் சேமிக்க முடியவில்லை.',discountUpdatePending:'பில் சேமிக்கும் முன் பொருள் தள்ளுபடி புதுப்பிப்பு முடியும் வரை காத்திருக்கவும்.'});
 function billDiscountAmount(subtotal,value,type){const entered=Number(value)||0,requested=type==='percent'?subtotal*entered/100:entered;return Math.min(Math.max(Math.round((requested+Number.EPSILON)*100)/100,0),subtotal)}
 function validBillDiscount(subtotal,value,type){const entered=Number(value);return Number.isFinite(entered)&&entered>=0&&(type==='percent'?entered<=100:entered<=subtotal)}
 function itemDiscountPercent(item){const value=Number(item.discountPercent),mrp=itemMrp(item),price=Number(item.price||0);if(Number.isFinite(value)&&value>0)return value;if(mrp>price&&mrp>0)return Math.round((mrp-price)/mrp*10000)/100;return Number.isFinite(value)?value:0}
@@ -188,11 +190,66 @@ function addToCart(id){const item=state.items.find(i=>i.id===id);if(!item)return
 function changeQty(id,n){const line=cart.find(x=>x.id===id);if(!line)return;line.qty+=n;if(line.qty<1)cart=cart.filter(x=>x.id!==id);renderBill()}
 function cartSubtotal(){return cart.reduce((total,item)=>total+item.price*item.qty,0)}
 function calc(){const subtotal=cartSubtotal(),productSavings=productSavingsFor(cart),billDiscount=billDiscountAmount(subtotal,$('billDiscount').value,$('billDiscountType').value);return{subtotal,productSavings,billDiscount,totalSavings:productSavings+billDiscount,total:Math.max(0,subtotal-billDiscount)}}
-function renderBill(){const el=$('billLines');if(!cart.length)el.innerHTML=`<div class="empty-state"><span class="basket">▱</span><b>${t('emptyBill')}</b><small>${t('emptyBillHint')}</small></div>`;else el.innerHTML=cart.map(x=>{const name=lang==='ta'&&x.tamil?x.tamil:x.name,mrp=itemMrp(x),hasDiscount=mrp>Number(x.price);return `<div class="bill-line"><div><div class="line-name">${escapeHtml(name)}</div><div class="line-sub">${hasDiscount?`<s>${money(mrp)}</s> · ${Number(x.discountPercent||0)}% off · `:''}${money(x.price)} × ${x.qty}</div></div><div class="line-right"><div class="qty-control"><button data-qty="${x.id}" data-delta="-1" aria-label="${t('decreaseQty')} ${escapeHtml(name)}">−</button><span>${x.qty}</span><button data-qty="${x.id}" data-delta="1" aria-label="${t('increaseQty')} ${escapeHtml(name)}">+</button></div><div class="line-total">${money(x.price*x.qty)}</div><button class="remove-line" data-remove="${x.id}" title="${t('remove')}" aria-label="${t('removeBillItem')} ${escapeHtml(name)}">×</button></div></div>`}).join('');el.querySelectorAll('[data-qty]').forEach(b=>b.onclick=()=>changeQty(b.dataset.qty,Number(b.dataset.delta)));el.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{cart=cart.filter(x=>x.id!==b.dataset.remove);renderBill()});const c=calc(),percentMode=$('billDiscountType').value==='percent';$('billDiscount').max=percentMode?'100':String(c.subtotal);$('billDiscountCaption').hidden=!percentMode;$('billDiscountCaption').textContent=percentMode?t('percentOfSubtotal'):'';$('subtotal').textContent=money(c.subtotal);$('discountTotal').textContent='− '+money(c.billDiscount);$('totalSavings').textContent=money(c.totalSavings);$('grandTotal').textContent=money(c.total);$('buttonTotal').textContent=money(c.total);renderCatalog()}
+function renderBill(){
+ const el=$('billLines');
+ if(!cart.length)el.innerHTML=`<div class="empty-state"><span class="basket">▱</span><b>${t('emptyBill')}</b><small>${t('emptyBillHint')}</small></div>`;
+ else el.innerHTML=cart.map(item=>{
+  const name=lang==='ta'&&item.tamil?item.tamil:item.name;
+  return `<div class="bill-line"><div><div class="line-name">${escapeHtml(name)}</div><div class="line-sub"><span>${t('receiptMrp')}: ${money(itemMrp(item))}</span><label class="bill-line-discount">${t('discount')}%<input type="number" min="0" max="100" step="0.01" value="${itemDiscountPercent(item)}" data-item-discount="${escapeHtml(item.id)}" aria-label="${escapeHtml(t('discount'))} ${escapeHtml(name)}"></label><span>${t('price')}: ${money(item.price)} × ${item.qty}</span></div></div><div class="line-right"><div class="qty-control"><button data-qty="${escapeHtml(item.id)}" data-delta="-1" aria-label="${t('decreaseQty')} ${escapeHtml(name)}">−</button><span>${item.qty}</span><button data-qty="${escapeHtml(item.id)}" data-delta="1" aria-label="${t('increaseQty')} ${escapeHtml(name)}">+</button></div><div class="line-total">${money(item.price*item.qty)}</div><button class="remove-line" data-remove="${escapeHtml(item.id)}" title="${t('remove')}" aria-label="${t('removeBillItem')} ${escapeHtml(name)}">×</button></div></div>`;
+ }).join('');
+ el.querySelectorAll('[data-qty]').forEach(button=>button.onclick=()=>changeQty(button.dataset.qty,Number(button.dataset.delta)));
+ el.querySelectorAll('[data-remove]').forEach(button=>button.onclick=()=>{cart=cart.filter(item=>item.id!==button.dataset.remove);renderBill()});
+ el.querySelectorAll('[data-item-discount]').forEach(input=>input.onchange=()=>{const percent=input.value;input.disabled=true;updateBillItemDiscount(input.dataset.itemDiscount,percent)});
+ const c=calc(),percentMode=$('billDiscountType').value==='percent';
+ $('billDiscount').max=percentMode?'100':String(c.subtotal);$('billDiscountCaption').hidden=!percentMode;$('billDiscountCaption').textContent=percentMode?t('percentOfSubtotal'):'';
+ $('subtotal').textContent=money(c.subtotal);$('discountTotal').textContent='− '+money(c.billDiscount);$('totalSavings').textContent=money(c.totalSavings);$('grandTotal').textContent=money(c.total);$('buttonTotal').textContent=money(c.total);renderCatalog()
+}
+async function updateBillItemDiscount(itemId,rawPercent){
+ const line=cart.find(item=>item.id===itemId);
+ if(!line)return;
+ const percent=Number(rawPercent);
+ if(!Number.isFinite(percent)||percent<0||percent>100){showToast(t('billItemDiscountInvalid'));renderBill();return}
+ const cloudUpdate=cloudMode,shopId=cloudUpdate?cloudShopId:null,uid=cloudSession?.user?.id;
+ if(cloudUpdate&&(!navigator.onLine||!cloudOnline)){showToast(t('catalogDiscountOnlineOnly'));renderBill();return}
+ pendingItemDiscountUpdates++;
+ $('saveBill').disabled=true;
+ try{
+  let updated;
+  if(cloudUpdate){
+   const result=await cloudApi('rpc/update_shop_item_discount',{method:'POST',body:{p_shop_id:shopId,p_item_id:itemId,p_discount_percent:Math.round(percent*100)/100}});
+   const mrp=Number(result?.mrp),price=Number(result?.price),discountPercent=Number(result?.discount_percent);
+   if(!result||String(result.id)!==String(itemId)||!Number.isFinite(mrp)||!Number.isFinite(price)||!Number.isFinite(discountPercent))throw new Error(t('catalogDiscountSaveFailed'));
+   updated={mrp,price,discountPercent};
+  }else{
+   const mrp=itemMrp(line);
+   updated={mrp,price:discountedPrice(mrp,percent),discountPercent:Math.round(percent*100)/100};
+  }
+  Object.assign(line,updated);
+  if(!cloudUpdate){
+   state.items=state.items.map(item=>item.id===itemId?{...item,...updated}:item);
+   persist();
+  }else if(cloudMode&&cloudShopId===shopId&&cloudSession?.user?.id===uid){
+   state.items=state.items.map(item=>item.id===itemId?{...item,...updated}:item);
+   try{
+    const key=cacheKey(uid,shopId),cached=readJson(key,null);
+    if(cached?.items){cached.items=cached.items.map(item=>item.id===itemId?{...item,...updated}:item);localStorage.setItem(key,JSON.stringify(cached))}
+   }catch(error){console.warn('Could not update the offline catalog cache after changing an item discount.',error)}
+  }
+  showToast(t('catalogDiscountSaved'))
+ }catch(error){
+  if(error.isNetworkError){cloudOnline=false;updateSyncStatus()}
+  showToast(uiError(error))
+ }finally{
+  pendingItemDiscountUpdates=Math.max(0,pendingItemDiscountUpdates-1);
+  $('saveBill').disabled=pendingItemDiscountUpdates>0;
+  renderBill()
+ }
+}
 function renderItems(){const el=$('itemsTable'),canEdit=canManageCatalog();el.innerHTML=state.items.length?state.items.map(i=>{const mrp=itemMrp(i),hasDiscount=mrp>Number(i.price);return `<div class="table-row"><span><b>${escapeHtml(i.name)}</b>${i.tamil?`<small>${escapeHtml(i.tamil)}</small>`:''}</span><b>${money(i.price)}${hasDiscount?`<small>${t('itemMrp')}: ${money(mrp)} · ${Number(i.discountPercent||0)}% ${t('discount')}</small>`:''}${Number(i.price)===0?`<small>${t('zeroPriceHint')}</small>`:''}</b><span class="item-row-actions">${canEdit?`<button class="row-action" data-edit-item="${i.id}">${t('editItem')}</button><button class="row-action" data-delete-item="${i.id}">${t('deleteItem')}</button>`:''}</span></div>`}).join(''):`<div class="history-empty">${t('noItems')}</div>`;el.querySelectorAll('[data-edit-item]').forEach(b=>b.onclick=()=>openItemDialog(state.items.find(item=>item.id===b.dataset.editItem)));el.querySelectorAll('[data-delete-item]').forEach(b=>b.onclick=async()=>{if(!confirm(t('removeConfirm')))return;try{if(cloudMode){await cloudApi(`items?id=eq.${b.dataset.deleteItem}&shop_id=eq.${cloudShopId}`,{method:'PATCH',body:{deleted:true,updated_at:new Date().toISOString()},prefer:'return=minimal'});await loadCloudData()}else{state.items=state.items.filter(i=>i.id!==b.dataset.deleteItem);persist();renderAll()}}catch(e){showToast(e.message)}})}
 function renderHistory(){const el=$('historyTable');if(!state.bills.length){el.innerHTML=`<div class="history-empty">${t('emptyHistory')}</div>`;return}el.innerHTML=[...state.bills].reverse().map(b=>`<div class="history-row"><b>${b.pending?'PENDING · ':''}${escapeHtml(b.number)}</b><span>${escapeHtml(b.customer||t('customerWalkIn'))}</span><span>${new Date(b.createdAt).toLocaleDateString(lang==='ta'?'ta-IN':'en-IN')}</span><b>${money(b.total)}</b><span class="history-actions"><button class="row-action" data-print="${b.id}">${t('print')}</button>${b.mobile?`<button class="row-action" data-whatsapp="${b.id}">${t('sendWhatsApp')}</button>`:''}</span></div>`).join('');el.querySelectorAll('[data-print]').forEach(b=>b.onclick=()=>printBillSafely(state.bills.find(x=>x.id===b.dataset.print)));el.querySelectorAll('[data-whatsapp]').forEach(b=>b.onclick=()=>sendBillToCustomer(state.bills.find(x=>x.id===b.dataset.whatsapp)))}
 function renderAll(){const canEdit=canManageCatalog();['addItemButton','browseDefaultItems','addItemShortcut'].forEach(id=>$(id).hidden=!canEdit);renderCatalog();renderBill();renderItems();renderHistory()}
 async function saveBill(){
+ if(pendingItemDiscountUpdates){showToast(t('discountUpdatePending'));return}
  if(!cart.length){showToast(t('itemRequired'));return}
  const c=calc();
  if(!validBillDiscount(c.subtotal,$('billDiscount').value,$('billDiscountType').value)){showToast(t('billDiscountInvalid'));return}
