@@ -15,6 +15,11 @@ with check (
     where m.shop_id::text = (storage.foldername(name))[1]
       and m.user_id = auth.uid()
   )
+  and exists (
+    select 1 from public.bills b
+    where b.shop_id::text = (storage.foldername(name))[1]
+      and b.id::text = regexp_replace(storage.filename(name), '\.pdf$', '')
+  )
 );
 
 drop policy if exists "Shop members read bill receipts" on storage.objects;
@@ -30,21 +35,3 @@ using (
 );
 
 drop policy if exists "Shop members update bill receipts" on storage.objects;
-create policy "Shop members update bill receipts"
-on storage.objects for update to authenticated
-using (
-  bucket_id = 'bill-receipts'
-  and exists (
-    select 1 from public.shop_members m
-    where m.shop_id::text = (storage.foldername(name))[1]
-      and m.user_id = auth.uid()
-  )
-)
-with check (
-  bucket_id = 'bill-receipts'
-  and exists (
-    select 1 from public.shop_members m
-    where m.shop_id::text = (storage.foldername(name))[1]
-      and m.user_id = auth.uid()
-  )
-);
