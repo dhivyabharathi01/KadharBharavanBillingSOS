@@ -214,9 +214,35 @@ async function shareBill(bill){
  const shop=cloudMode?cloudShops.find(s=>s.id===(bill.shopId||cloudShopId)):loadLocalShop(),text=receiptText(bill,shop);
  try{
   const file=await createReceiptPdf(bill,shop);
-  if(cloudMode&&cloudOnline){
-   const url=await uploadReceiptLink(file,bill),message=`${text}\n\nBill PDF (link expires in 7 days): ${url}`,phone=whatsAppPhone(bill.mobile);
-   location.href=`https://wa.me${phone?`/${phone}`:''}?text=${encodeURIComponent(message)}`;
+  if(cloudMode){
+   let url='';
+   try{
+    url=await uploadReceiptLink(file,bill);
+   }catch(error){
+    if(!/AbortError/i.test(error.name||''))showToast(`${lang==='ta'?'PDF இணைப்பை உருவாக்க முடியவில்லை':'Could not create PDF link'}: ${uiError(error)}`);
+   }
+   const message=url
+    ?`${text}\n\nBill PDF (link expires in 7 days): ${url}`
+    :`${text}\n\nPDF attachment could not be uploaded. Ask the shop to resend the receipt.`;
+   const phone=whatsAppPhone(bill.mobile);
+   if(typeof navigator.share==='function'&&(!navigator.canShare||navigator.canShare({files:[file]}))){
+    try{
+     await navigator.share({files:[file],title:`Receipt ${bill.number}`,text:message});
+     if(url)showToast(t('pdfLinkReady'));
+     return;
+    }catch(error){
+     if(error.name==='AbortError')return;
+    }
+   }
+   if(url){
+    location.href=`https://wa.me${phone?`/${phone}`:''}?text=${encodeURIComponent(message)}`;
+    showToast(t('pdfLinkReady'));
+   }else{
+    const link=document.createElement('a');
+    link.href=URL.createObjectURL(file);link.download=file.name;link.click();
+    setTimeout(()=>URL.revokeObjectURL(link.href),60000);
+    window.open(`https://wa.me${phone?`/${phone}`:''}?text=${encodeURIComponent(text)}`,'_blank','noopener,noreferrer');
+   }
    return
   }
   if(typeof navigator.share==='function'){

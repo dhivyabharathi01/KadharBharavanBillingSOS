@@ -15,7 +15,7 @@
       payment.hostname !== 'pay' ||
       !payment.searchParams.get('pa') ||
       !Number.isFinite(amount) ||
-      amount < 0 ||
+      amount <= 0 ||
       payment.searchParams.get('cu') !== 'INR'
     ) {
       throw new Error('Invalid UPI payment link');
@@ -28,15 +28,26 @@
   const merchant = payment.searchParams.get('pn') || 'Shop';
   const amount = Number(payment.searchParams.get('am')).toFixed(2);
   details.textContent = `${merchant} · ₹${amount}`;
-  payNow.href = payment.href;
-  payNow.hidden = false;
-  status.textContent = 'Opening a compatible UPI app…';
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isAppleMobile = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    setTimeout(() => {
-      location.href = payment.href;
-      status.textContent = 'If your UPI app did not open, tap Pay now.';
-    }, 100);
+  if (isAndroid) {
+    const intentUrl = `intent://${payment.host}${payment.pathname}${payment.search}#Intent;scheme=upi;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end`;
+    payNow.href = intentUrl;
+    payNow.addEventListener('click', () => {
+      setTimeout(() => {
+        if (document.hasFocus()) location.href = payment.href;
+      }, 1500);
+    });
+  } else {
+    payNow.href = payment.href;
+  }
+  payNow.hidden = false;
+
+  if (isAndroid) {
+    status.textContent = 'Tap Pay now to open a UPI app.';
+  } else if (isAppleMobile) {
+    status.textContent = 'Tap Pay now to open a compatible UPI app.';
   } else {
     status.textContent = 'Open this link on a phone with a UPI app.';
   }
