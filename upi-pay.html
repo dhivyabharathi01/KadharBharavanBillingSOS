@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#185c4d" />
+  <meta property="og:title" content="Pay now" />
+  <meta property="og:description" content="Open your UPI app to pay this bill." />
+  <title>Pay by UPI</title>
+  <style>
+    body{margin:0;padding:24px;font:16px Arial,sans-serif;color:#17231d;background:#f6f8f6}
+    main{max-width:420px;margin:10vh auto;padding:28px;background:#fff;border-radius:16px;box-shadow:0 12px 40px #17231d18}
+    h1{font-size:24px}#paymentDetails{line-height:1.6}.pay-button{display:block;margin:24px 0;padding:16px;border-radius:10px;background:#185c4d;color:#fff;text-align:center;text-decoration:none;font-weight:bold}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pay by UPI</h1>
+    <p id="paymentStatus">Preparing secure payment link…</p>
+    <p id="paymentDetails"></p>
+    <a id="payNow" class="pay-button" href="#" hidden>Pay now</a>
+    <p>Check the shop name and amount in your UPI app before confirming payment.</p>
+  </main>
+  <script src="./upi-pay.js" defer></script>
+</body>
+</html>

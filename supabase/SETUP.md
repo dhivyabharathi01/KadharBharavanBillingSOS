@@ -36,6 +36,14 @@ This checklist is for a test Supabase project. The schema supports one business 
    ```
 
    Supabase provides the function's URL, anon, and service-role environment variables. Never copy the service-role key into `config.js` or the browser. The shop owner can then use **Shop setup → Staff access** to enter a name and email. The app invites a new user by email and assigns the account to the current shop; an existing account can be assigned directly. The staff member sets their own password through the invitation and signs in with that email. Each signed-in user sees only shops listed for their user UUID in `shop_members`.
+   To enable private bill PDF links, run `bill-pdf-storage.sql` in the SQL Editor. Deploy the cleanup function and set a random cleanup secret:
+
+   ```sh
+   supabase functions deploy cleanup-bill-receipts --no-verify-jwt --project-ref PROJECT_REF
+   supabase secrets set BILL_RECEIPT_CLEANUP_SECRET=YOUR_RANDOM_SECRET --project-ref PROJECT_REF
+   ```
+
+   In `schedule-bill-receipt-cleanup.sql`, replace the project URL, publishable key, and cleanup-secret placeholders, then run that SQL once in the SQL Editor. Do not commit the filled-in SQL or share the cleanup secret. The daily job removes PDFs older than 14 days; WhatsApp links expire after 7 days. Bill records remain in the database. The cleanup function uses the service-role key only on the server and checks the separate cleanup secret.
 6. Start the app over HTTP for local testing (use HTTPS when hosted). The shop selector switches among shops assigned to the signed-in user. Staff can create bills and view the item catalog; catalog changes and direct UPI updates are owner-only. Staff UPI requests remain subject to owner approval.
 7. Verify isolation with two test users: assign one only to Main shop and one only to Market Road shop. Add an item in Main shop. The Market Road user must not see it. Using that user’s signed-in session, a direct REST request for `items?shop_id=eq.MAIN_SHOP_UUID` should return no rows; attempting to insert/update with that shop UUID must be rejected by RLS. Also confirm a staff member cannot change an assigned shop's catalog or UPI directly, but can create a bill.
 8. Verify shared use by signing into the same shop on separate browsers or phones, adding an item on one, and confirming it appears on the others. Create a bill and check that it appears in that shop’s history.
@@ -48,11 +56,11 @@ This checklist is for a test Supabase project. The schema supports one business 
 
 - Individual Supabase email/password sign-in.
 - Shop-membership check on sign-in.
-- Shared item catalog and bill history, refreshed every 20 seconds and on browser focus.
+- Shared item catalog and bill history, refreshed every 60 seconds while visible and on browser focus.
 - Database-enforced shop isolation on business, shop, membership, catalog, and bill data. A user can access only shops with an explicit membership row; filtering in the app is not the security boundary.
 - A user assigned to multiple shops can switch among those memberships. Bill numbers are allocated independently for each shop.
 - Atomic, idempotent bill creation with a server-allocated unique bill number, including retry-safe offline sync.
-- Device-generated PDF receipts that include a bill-specific UPI payment QR when the shop has an approved UPI ID. The share sheet sends the file where supported; otherwise download it and attach it in WhatsApp.
+- Device-generated PDF receipts that include a bill-specific UPI payment QR when the shop has an approved UPI ID. WhatsApp messages include a **Pay now** HTTPS link that attempts to open a compatible mobile UPI app and provides a fallback button. Supabase mode uploads PDFs to a private per-shop bucket, sends 7-day signed links, and deletes files after 14 days; local preview shares or downloads the PDF directly.
 - Per-user/per-shop offline catalog and bill-history cache; unsynced bills stay queued on the device/account.
 - Owner-only shop registration with required UPI ID; owners can invite new staff logins or assign existing Auth users through the `invite-shop-staff` Edge Function; staff UPI changes go to an owner approval queue.
 

@@ -17,8 +17,8 @@ The billing screen follows the supplied Stitch export's textile POS direction: h
 - Database-enforced shop isolation, shared per-shop catalog/history, and server-assigned bill numbers in Supabase mode.
 - Owner/admin-only catalog changes and direct UPI updates; staff UPI changes require owner approval. Owners can create staff logins by email invitation from **Shop setup → Staff access**, or assign an existing account. UPI payment QR is included on printed receipts when the shop has an approved UPI ID.
 - Bills saved offline are queued per signed-in user and shop, then synced with idempotent bill IDs when the connection returns.
-- Receipt PDF generation with UPI QR and WhatsApp sharing through the device share sheet. If file sharing is unavailable, the PDF downloads and WhatsApp opens so it can be attached manually.
-- When a bill has a customer number, the app shares the PDF receipt and message through the device share sheet; choose WhatsApp and the recipient there. Browsers cannot preselect a WhatsApp recipient while attaching a file. If file sharing is unavailable, the PDF downloads and WhatsApp opens a prefilled chat for that number so the PDF can be attached manually. Bill history offers the same option. Review the message and tap Send in WhatsApp. Bills without a customer number continue to offer PDF sharing or printing.
+- Receipt PDFs include a bill-specific UPI QR. In Supabase mode, WhatsApp sharing uploads the PDF to a private per-shop bucket and sends a signed link that expires after 7 days; a scheduled cleanup deletes stored PDFs after 14 days. Local preview continues to share or download the PDF directly.
+- When a bill has a customer number, WhatsApp opens with the receipt summary, a **Pay now** HTTPS link, and secure PDF link addressed to that number. The payment page attempts to open a compatible UPI app on mobile and provides a fallback button; the customer must confirm payment in the app. Bill history offers the same option. Review the message and tap Send in WhatsApp. Bills without a customer number can share a link or print the receipt.
 
 ## Important: local preview vs. shared shop use
 
@@ -37,6 +37,8 @@ The app needs a successful sign-in and first shop sync while online. It can then
 For a single shop and three staff accounts, the app itself has no per-user, bill, QR, or WhatsApp fee. Use Cloudflare Pages free hosting (including its `pages.dev` address) and Supabase Free to start: estimated platform cost is **$0/month**. Keep cloud sign-in on HTTPS; the app permits plain HTTP only on `localhost` for development. `_headers` supplies browser security headers on Cloudflare Pages.
 
 Supabase Free is suitable for testing and low-risk trials, but may pause a low-activity project after seven days and does not include downloadable database backups. For daily shop use, Supabase Pro is currently **$25/month** for the first project, including daily backups retained for seven days and no inactivity pause. Cloudflare Pages can remain free; a custom domain is optional and adds its annual registration cost. Prices are USD before any applicable taxes, currency conversion, or usage add-ons. See Supabase’s [current pricing](https://supabase.com/pricing) and [free project pausing rules](https://supabase.com/docs/guides/platform/free-project-pausing).
+
+Supabase Free currently includes 1 GB of file storage and 5 GB of egress. Bill PDFs are removed after 14 days; at an average of 250 KB each, 1 GB holds about 4,000 PDFs at once. Actual usage depends on receipt size and downloads, so monitor the project’s Storage and Egress usage.
 
 ## Run the preview
 
@@ -62,5 +64,5 @@ In local preview mode, add items, create bills, switch to Tamil, and print recei
 - In local preview mode there is no shared data. Cloud mode requires the Supabase project configuration and membership setup. Shop isolation is enforced by Supabase row-level security, not by the browser selector.
 - Offline mode needs a successful online sign-in and shop sync first. Pending bills stay on the same device/account until they sync; clearing browser storage can remove them. Catalog and bill history are cached per user and shop.
 - The sample names and prices are demonstration data; replace them with the shop catalog.
-- PDF receipts are generated on the device. Phones that support file sharing can attach the PDF from the share sheet; on other browsers the PDF downloads and the user attaches it in WhatsApp. Printing remains available through the browser print dialog. The QR library is pinned with Subresource Integrity and cached after the first online load; without it, the receipt shows the UPI ID as text.
+- PDF receipts are generated on the device. In Supabase mode, sharing stores the PDF privately for up to 14 days and sends a signed link that expires in 7 days; the link opens or downloads the PDF rather than attaching it as a WhatsApp document. Local preview can use the device share sheet or download the PDF. Printing remains available through the browser print dialog. The UPI QR is bill-specific because it includes the bill amount.
 - No stock tracking by design; that is Phase 2.
