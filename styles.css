@@ -483,6 +483,21 @@ body{background:radial-gradient(ellipse at 92% 8%,#f3e5d4 0,transparent 30%),var
 .shop-profile-card .primary-button,.upi-profile-card .primary-button{width:100%;margin-top:10px}
 #saveShopProfile[hidden]{display:none!important}
 .upi-profile-card>.eyebrow{margin-bottom:8px}
+.bill-discount-input select{
+  max-width:110px;
+  min-height:32px;
+  border:1px solid #e6dcd5;
+  border-radius:8px;
+  padding:5px 7px;
+  background:#fffefa;
+  color:var(--premium-plum);
+  font:600 10px 'DM Sans','Noto Sans Tamil',sans-serif;
+}
+.bill-discount-input .discount-caption{white-space:nowrap}
+@media(max-width:450px){
+  .bill-discount-input select{max-width:92px}
+  .bill-discount-input .discount-caption{white-space:normal}
+}
 .setup-tabs{gap:6px;padding:5px;border:1px solid #eadfd1;border-radius:12px;background:#f8f1e8}
 .setup-tab{border-radius:9px}
 .setup-tab.active{background:#fff;color:#842b12;box-shadow:0 2px 6px rgba(67,39,23,.08)}

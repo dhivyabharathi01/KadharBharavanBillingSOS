@@ -8,7 +8,7 @@ The billing experience uses a Tamil-first heritage textile identity, warm ivory 
 
 - Tamil-first interface with a saved Tamil / English toggle across billing, catalog, history and shop setup.
 - Add and manage shop items with English and optional Tamil names.
-- Create bills with quantities and a bill-level discount.
+- Create bills with quantities and a bill-level discount, entered as a fixed amount or a percentage.
 - Show the five most recently used catalog items on the billing screen; search to find any other item.
 - Save bill history locally in preview mode or in the shared shop database when connected; print a Tamil-capable receipt.
 - Mobile layout and an installable PWA shell.
@@ -17,7 +17,7 @@ The billing experience uses a Tamil-first heritage textile identity, warm ivory 
 - Database-enforced shop isolation, shared per-shop catalog/history, and server-assigned bill numbers in Supabase mode.
 - Owner/admin-only shop profile and catalog changes, and direct UPI updates; staff UPI changes require owner approval. Owners can update shop name, address, and phone from **Shop setup → Shop details**, create staff logins by email invitation, or assign an existing account. UPI payment QR is included on printed receipts when the shop has an approved UPI ID.
 - Bills saved offline are queued per signed-in user and shop, then synced with idempotent bill IDs when the connection returns.
-- Receipt PDFs include a bill-specific UPI QR. In Supabase mode, WhatsApp sharing uploads the PDF to a private per-shop bucket and uses short, secure redirect links for the PDF and UPI payment page; links expire after 7 days, while a scheduled cleanup deletes stored PDFs after 14 days. Local preview continues to share or download the PDF directly.
+- Receipt PDFs include each item's catalog discount rate in its own column and a bill-specific UPI QR. In Supabase mode, WhatsApp sharing uploads the PDF to a private per-shop bucket and uses short, secure redirect links for the PDF and UPI payment page; links expire after 7 days, while a scheduled cleanup deletes stored PDFs after 14 days. Local preview continues to share or download the PDF directly.
 - Mark **Collected in cash** on the billing screen when cash has been received. The bill stores this payment method, and its receipt/WhatsApp message states the cash amount without UPI links or QR. Other bills retain the bill-specific UPI payment link.
 - When a bill has a customer number, WhatsApp opens with the receipt summary and short payment/PDF links addressed to that number. WhatsApp messages are plain text, so the short URLs remain visible rather than being hidden behind custom link labels. For unpaid bills, the payment page attempts to open a compatible UPI app on mobile and provides a fallback button; the customer must confirm payment in the app. Bill history offers the same option. Review the message and tap Send in WhatsApp. Bills without a customer number can share a link or print the receipt.
 
