@@ -18,7 +18,8 @@ The billing screen follows the supplied Stitch export's textile POS direction: h
 - Owner/admin-only catalog changes and direct UPI updates; staff UPI changes require owner approval. Owners can create staff logins by email invitation from **Shop setup → Staff access**, or assign an existing account. UPI payment QR is included on printed receipts when the shop has an approved UPI ID.
 - Bills saved offline are queued per signed-in user and shop, then synced with idempotent bill IDs when the connection returns.
 - Receipt PDFs include a bill-specific UPI QR. In Supabase mode, WhatsApp sharing uploads the PDF to a private per-shop bucket and sends a signed link that expires after 7 days; a scheduled cleanup deletes stored PDFs after 14 days. Local preview continues to share or download the PDF directly.
-- When a bill has a customer number, WhatsApp opens with the receipt summary, a **Pay now** HTTPS link, and secure PDF link addressed to that number. The payment page attempts to open a compatible UPI app on mobile and provides a fallback button; the customer must confirm payment in the app. Bill history offers the same option. Review the message and tap Send in WhatsApp. Bills without a customer number can share a link or print the receipt.
+- Mark **Collected in cash** on the billing screen when cash has been received. The bill stores this payment method, and its receipt/WhatsApp message states the cash amount without UPI links or QR. Other bills retain the bill-specific UPI payment link.
+- When a bill has a customer number, WhatsApp opens with the receipt summary, payment details, and secure PDF link addressed to that number. For unpaid bills, the payment page attempts to open a compatible UPI app on mobile and provides a fallback button; the customer must confirm payment in the app. Bill history offers the same option. Review the message and tap Send in WhatsApp. Bills without a customer number can share a link or print the receipt.
 
 ## Important: local preview vs. shared shop use
 
@@ -28,7 +29,7 @@ An owner can use the registration screen to create the first business and shop. 
 
 After signing in, shop users can choose bilingual textile and devotional item presets from **Shop setup → Item catalog**, **Items → Choose from default list**, or **Add new item → Choose from default list**. The single-item flow fills the item form so its price can be entered before saving; bulk selection adds presets at ₹0. The setup tab also lists current shop items with an **Edit** action. Set each item's price before billing.
 
-For an existing Supabase project, run [`supabase/fix-bill-id.sql`](./supabase/fix-bill-id.sql) in the Supabase SQL Editor before creating bills. If you see `null value in column "id" of relation "bills" violates not-null constraint`, the deployed bill RPC is outdated; running this migration replaces it without requiring the full schema to be rerun. Reload the hosted app after the migration completes.
+For an existing Supabase project, run [`supabase/fix-bill-id.sql`](./supabase/fix-bill-id.sql) in the Supabase SQL Editor before creating bills. It updates the bill RPC and adds payment-method storage; existing bills default to UPI. If you see `null value in column "id" of relation "bills" violates not-null constraint`, the deployed bill RPC is outdated; running this migration replaces it without requiring the full schema to be rerun. Reload the hosted app after the migration completes.
 
 The app needs a successful sign-in and first shop sync while online. It can then save bills offline and sync them after reconnecting; authentication, item changes, and shop setup still need internet. GST has been left out of this version.
 

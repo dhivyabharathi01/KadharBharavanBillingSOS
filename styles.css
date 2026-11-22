@@ -59,6 +59,11 @@ body{background:#f8f9ff;font-family:'Noto Sans Tamil','DM Sans',sans-serif;color
 }
 @media(max-width:450px){.customer-fields{grid-template-columns:1fr 1fr}.catalog-item{min-height:116px}.history-head,.history-row{font-family:'Noto Sans Tamil','DM Sans',sans-serif}}
 .app-shell[hidden]{display:none}
+.cash-collected-option{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--line);color:var(--ink);cursor:pointer}
+.cash-collected-option input{width:16px;height:16px;margin:0;accent-color:var(--green)}
+.cash-collected-option b,.cash-collected-option small{display:block}
+.cash-collected-option b{font-size:11px}
+.cash-collected-option small{margin-top:3px;color:var(--muted);font-size:9px}
 body .auth-gate{height:100vh;height:100dvh;align-items:flex-start;justify-content:center;overflow-x:hidden;overflow-y:scroll;overscroll-behavior-y:contain;touch-action:pan-y}
 .auth-card{margin:auto;flex-shrink:0}
 .auth-tabs{gap:7px;padding:5px;background:#f1f5f2;border-color:#e0e9e2;border-radius:12px}
