@@ -29,21 +29,22 @@ This checklist is for a test Supabase project. The schema supports one business 
      ('MARKET_SHOP_UUID', 'OWNER_USER_UUID', 'Thangavel', 'owner');
    ```
 
-   Deploy the staff invitation function from the repository root with the Supabase CLI:
+   Link the project if this checkout is not already linked, then deploy the staff invitation function from the repository root:
 
    ```sh
-   supabase functions deploy invite-shop-staff --project-ref PROJECT_REF
+   supabase link ztxbygqqtibgnsepjmzf
+   supabase functions deploy invite-shop-staff
    ```
 
    Supabase provides the function's URL, anon, and service-role environment variables. Never copy the service-role key into `config.js` or the browser. The shop owner can then use **Shop setup → Staff access** to enter a name and email. The app invites a new user by email and assigns the account to the current shop; an existing account can be assigned directly. The staff member sets their own password through the invitation and signs in with that email. Each signed-in user sees only shops listed for their user UUID in `shop_members`.
    To enable private bill PDF links, run `bill-pdf-storage.sql` in the SQL Editor. Deploy the cleanup function and set a random cleanup secret:
 
    ```sh
-   supabase functions deploy cleanup-bill-receipts --no-verify-jwt --project-ref PROJECT_REF
-   supabase secrets set BILL_RECEIPT_CLEANUP_SECRET=YOUR_RANDOM_SECRET --project-ref PROJECT_REF
+   supabase functions deploy cleanup-bill-receipts --no-verify-jwt
+   supabase secrets set BILL_RECEIPT_CLEANUP_SECRET=YOUR_RANDOM_SECRET
    ```
 
-   In `schedule-bill-receipt-cleanup.sql`, replace the project URL, publishable key, and cleanup-secret placeholders, then run that SQL once in the SQL Editor. Do not commit the filled-in SQL or share the cleanup secret. The daily job removes PDFs older than 14 days; WhatsApp links expire after 7 days. Bill records remain in the database. The cleanup function uses the service-role key only on the server and checks the separate cleanup secret.
+   In `schedule-bill-receipt-cleanup.sql`, replace the cleanup-secret placeholder with the same secret, then run that SQL once in the SQL Editor. The project URL and publishable key are prefilled for this project. Do not commit the filled-in SQL or share the cleanup secret. The daily job removes PDFs older than 14 days; WhatsApp links expire after 7 days. Bill records remain in the database. The cleanup function uses the service-role key only on the server and checks the separate cleanup secret.
 6. Start the app over HTTP for local testing (use HTTPS when hosted). The shop selector switches among shops assigned to the signed-in user. Staff can create bills and view the item catalog; catalog changes and direct UPI updates are owner-only. Staff UPI requests remain subject to owner approval.
 7. Verify isolation with two test users: assign one only to Main shop and one only to Market Road shop. Add an item in Main shop. The Market Road user must not see it. Using that user’s signed-in session, a direct REST request for `items?shop_id=eq.MAIN_SHOP_UUID` should return no rows; attempting to insert/update with that shop UUID must be rejected by RLS. Also confirm a staff member cannot change an assigned shop's catalog or UPI directly, but can create a bill.
 8. Verify shared use by signing into the same shop on separate browsers or phones, adding an item on one, and confirming it appears on the others. Create a bill and check that it appears in that shop’s history.

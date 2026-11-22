@@ -1,18 +1,18 @@
--- Replace every placeholder before running. Run once per Supabase project.
+-- Replace the cleanup-secret placeholder before running. Run once per Supabase project.
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
 create extension if not exists supabase_vault with schema vault;
 
 select vault.create_secret(
-  'https://PROJECT_REF.supabase.co',
+  'https://ztxbyqgqtibgnsepjmzf.supabase.co',
   'bill_cleanup_project_url'
 );
 select vault.create_secret(
-  'SUPABASE_PUBLISHABLE_KEY',
+  'sb_publishable_dGmwD-ACC4wlneOnEW06Xg_XVg4pOt-',
   'bill_cleanup_publishable_key'
 );
 select vault.create_secret(
-  'BILL_RECEIPT_CLEANUP_SECRET',
+  'REPLACE_WITH_BILL_RECEIPT_CLEANUP_SECRET',
   'bill_cleanup_secret'
 );
 
