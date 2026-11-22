@@ -18,7 +18,7 @@ The billing screen follows the supplied Stitch export's textile POS direction: h
 - Owner/admin-only catalog changes and direct UPI updates; staff UPI changes require owner approval. Owners can create staff logins by email invitation from **Shop setup → Staff access**, or assign an existing account. UPI payment QR is included on printed receipts when the shop has an approved UPI ID.
 - Bills saved offline are queued per signed-in user and shop, then synced with idempotent bill IDs when the connection returns.
 - Receipt PDF generation with UPI QR and WhatsApp sharing through the device share sheet. If file sharing is unavailable, the PDF downloads and WhatsApp opens so it can be attached manually.
-- After saving a bill with a customer number, the app can open a prefilled WhatsApp message addressed to that number; bill history also keeps this option. The user must review and tap Send in WhatsApp. Personal WhatsApp messaging has no platform fee, though internet/data charges may apply. Bills without a customer number continue to offer PDF sharing or printing.
+- When a bill has a customer number, the app shares the PDF receipt and message through the device share sheet; choose WhatsApp and the recipient there. Browsers cannot preselect a WhatsApp recipient while attaching a file. If file sharing is unavailable, the PDF downloads and WhatsApp opens a prefilled chat for that number so the PDF can be attached manually. Bill history offers the same option. Review the message and tap Send in WhatsApp. Bills without a customer number continue to offer PDF sharing or printing.
 
 ## Important: local preview vs. shared shop use
 
