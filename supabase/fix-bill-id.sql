@@ -42,7 +42,7 @@ begin
   end if;
 
   for v_line in select * from jsonb_to_recordset(p_items) as x(item_id uuid,quantity numeric) loop
-    if v_line.item_id is null or v_line.quantity <= 0 then
+    if v_line.item_id is null or v_line.quantity is null or v_line.quantity::text in ('NaN','Infinity','-Infinity') or v_line.quantity <= 0 then
       raise exception 'Invalid bill item';
     end if;
     select * into v_catalog_item
@@ -51,7 +51,7 @@ begin
     if not found then raise exception 'A bill item is not in this shop catalog'; end if;
     v_subtotal := v_subtotal + round(v_line.quantity * v_catalog_item.price,2);
   end loop;
-  if p_discount < 0 or p_discount > v_subtotal then
+  if p_discount is null or p_discount::text in ('NaN','Infinity','-Infinity') or p_discount < 0 or p_discount > v_subtotal then
     raise exception 'Discount exceeds the bill subtotal';
   end if;
   v_discount := round(p_discount,2);

@@ -18,7 +18,8 @@ with check (
   and exists (
     select 1 from public.bills b
     where b.shop_id::text = (storage.foldername(name))[1]
-      and b.id::text = regexp_replace(storage.filename(name), '\.pdf$', '')
+      and b.id::text = (storage.foldername(name))[2]
+      and (b.created_by = auth.uid() or public.is_shop_owner(b.shop_id))
   )
 );
 
