@@ -16,6 +16,8 @@ Object.assign(TEXT.en,{savedOffline:'Saved offline · waiting to sync',pdfDownlo
 Object.assign(TEXT.ta,{savedOffline:'இணையமின்றி சேமிக்கப்பட்டது · இணைப்பு வந்ததும் ஒத்திசைக்கப்படும்',pdfDownloaded:'PDF பதிவிறக்கப்பட்டது · WhatsApp-ல் இணைக்கவும்',signedIn:'உள்நுழைந்துள்ளீர்கள்',sameEmailError:'கடைப் பதிவு செய்த அதே மின்னஞ்சலில் உள்நுழையவும்.',sessionExpired:'உங்கள் அமர்வு முடிந்தது. மீண்டும் உள்நுழையவும்.',offlineShopShown:'இணையமில்லை · சேமித்த கடை விவரங்கள் காட்டப்படுகின்றன',offlineBillStorageError:'இந்தச் சாதனத்தில் இணையமற்ற பில்லைச் சேமிக்க முடியவில்லை. சேமிப்பிடத்தை காலி செய்து மீண்டும் முயற்சிக்கவும்.'});
 Object.assign(TEXT.en,{qrUnavailable:'Could not create the UPI QR code. Check the UPI ID and reload the app while online.'});
 Object.assign(TEXT.ta,{qrUnavailable:'UPI QR குறியீட்டை உருவாக்க முடியவில்லை. UPI ஐடியைச் சரிபார்த்து, இணையத்துடன் செயலியை மீண்டும் ஏற்றவும்.'});
+Object.assign(TEXT.en,{qrFallback:'UPI QR could not be created; the PDF will include the UPI ID instead.'});
+Object.assign(TEXT.ta,{qrFallback:'UPI QR உருவாக்க முடியவில்லை; அதற்குப் பதிலாக PDF-ல் UPI ஐடி சேர்க்கப்படும்.'});
 Object.assign(TEXT.en,{pdfLinkReady:'Secure bill link opened in WhatsApp. It expires in 7 days.'});
 Object.assign(TEXT.ta,{pdfLinkReady:'பாதுகாப்பான பில் இணைப்பு WhatsApp-ல் திறக்கப்பட்டது. 7 நாட்களில் காலாவதியாகும்.'});
 Object.assign(TEXT.en,{sendWhatsApp:'WhatsApp customer',customerPhoneInvalid:'Enter a valid customer phone number to open WhatsApp.',whatsAppAfterSave:'Bill saved. Open WhatsApp with a message for this customer? Review it and tap Send in WhatsApp. (Cancel to print)',sharePdfAfterSave:'Bill saved. Share the PDF receipt? WhatsApp will appear in your share options. (Cancel to print)'});
@@ -228,7 +230,35 @@ async function shareBill(bill){
  }catch(e){if(e.name==='AbortError')return;showToast(`${lang==='ta'?'PDF உருவாக்க முடியவில்லை':'Could not create PDF'}: ${uiError(e)}`)}
 }
 function upiPaymentUri(bill,shop){if(!shop?.upi_id)return'';const params=new URLSearchParams({pa:shop.upi_id,pn:shop.name||'Kadhar Bhavan',am:Number(bill.total).toFixed(2),cu:'INR',tn:`Bill ${bill.number}`});return `upi://pay?${params.toString()}`}
-async function qrDataUri(value){if(!value)return null;const Generator=window.QRCode;if(typeof Generator!=='function')throw new Error(t('qrUnavailable'));const host=document.createElement('div');host.setAttribute('aria-hidden','true');host.style.cssText='position:fixed;left:0;top:0;width:196px;height:196px;opacity:0;pointer-events:none;z-index:-1';document.body.append(host);try{new Generator(host,{text:value,width:196,height:196,correctLevel:Generator.CorrectLevel.M});return await new Promise((resolve,reject)=>{const started=Date.now();const check=()=>{const canvas=host.querySelector('canvas');if(canvas?.width&&canvas.height){try{resolve(canvas.toDataURL('image/png'));return}catch(error){reject(error);return}}const image=host.querySelector('img');if(image?.complete&&image.naturalWidth){resolve(image.src);return}if(Date.now()-started>3000){reject(new Error(t('qrUnavailable')));return}setTimeout(check,40)};check()})}finally{host.remove()}}
+async function qrDataUri(value){
+ if(!value)return null;
+ let host;
+ try{
+  const Generator=window.QRCode;
+  if(typeof Generator!=='function')throw new Error(t('qrUnavailable'));
+  host=document.createElement('div');
+  host.setAttribute('aria-hidden','true');
+  host.style.cssText='position:fixed;left:-10000px;top:0;width:196px;height:196px;pointer-events:none';
+  document.body.append(host);
+  new Generator(host,{text:value,width:196,height:196,correctLevel:Generator.CorrectLevel.M});
+  return await new Promise((resolve,reject)=>{
+   const started=Date.now();
+   const check=()=>{
+    const canvas=host.querySelector('canvas');
+    if(canvas?.width&&canvas.height){try{resolve(canvas.toDataURL('image/png'));return}catch(error){reject(error);return}}
+    const image=host.querySelector('img');
+    if(image?.complete&&image.naturalWidth){resolve(image.src);return}
+    if(Date.now()-started>3000){reject(new Error(t('qrUnavailable')));return}
+    setTimeout(check,40)
+   };
+   check()
+  })
+ }catch(error){
+  console.error('UPI QR generation failed; falling back to the UPI ID on the receipt.',error);
+  showToast(t('qrFallback'));
+  return null
+ }finally{host?.remove()}
+}
 function printBillSafely(bill){printBill(bill).catch(error=>showToast(uiError(error)))}
 async function printBill(b){const rows=b.items.map(i=>`<tr><td>${escapeHtml(lang==='ta'&&i.tamil?i.tamil:i.name)} × ${i.qty}</td><td>${money(i.price*i.qty)}</td></tr>`).join('');const shop=cloudMode?cloudShops.find(s=>s.id===(b.shopId||cloudShopId)):loadLocalShop();const uri=upiPaymentUri(b,shop);const qr=await qrDataUri(uri);const w=window.open('','_blank','width=480,height=720');if(!w){showToast('Allow pop-ups to print or save the PDF');return}w.document.write(`<!doctype html><html lang="${lang}"><meta charset="utf-8"><title>${escapeHtml(b.number)}</title><style>body{font:14px 'Noto Sans Tamil',Arial,sans-serif;color:#17231d;padding:24px;max-width:380px;margin:auto}h1{text-align:center;font-size:22px;margin-bottom:4px}p{text-align:center;color:#667;margin:4px 0 16px}.meta{font-size:12px;border-top:1px dashed #aaa;border-bottom:1px dashed #aaa;padding:10px 0}table{width:100%;border-collapse:collapse;margin:12px 0}td{padding:7px 0;border-bottom:1px solid #eee;font-size:12px}td:last-child{text-align:right}.total{font-weight:bold;font-size:18px}.thanks{text-align:center;margin-top:20px}.pay{text-align:center;margin-top:18px}.pay img{width:150px;height:150px}.pay small{display:block;font-size:10px;color:#667;margin-top:5px}@media print{button{display:none}}</style><body><h1>${t('receiptTitle')}</h1><p>${escapeHtml(b.number)}</p><div class="meta">${escapeHtml(shop?.name||'Kadhar Bhavan')}${shop?.address?`<br>${escapeHtml(shop.address)}`:''}${shop?.phone?`<br>Ph: ${escapeHtml(shop.phone)}`:''}${shop?.upi_id?`<br>UPI: ${escapeHtml(shop.upi_id)}`:''}\n<br>---<br>${new Date(b.createdAt).toLocaleString(lang==='ta'?'ta-IN':'en-IN')}<br>${escapeHtml(b.customer||t('customerWalkIn'))}${b.mobile?` · ${escapeHtml(b.mobile)}`:''}<br>${escapeHtml(b.staff)}</div><table>${rows}</table><table><tr><td>${t('subtotal')}</td><td>${money(b.subtotal)}</td></tr><tr><td>${t('discount')}</td><td>− ${money(b.discount)}</td></tr><tr class="total"><td>${t('billTotal')}</td><td>${money(b.total)}</td></tr></table>${qr?`<div class="pay"><b>Pay by UPI</b><br><img alt="UPI payment QR code" src="${qr}"><small>${escapeHtml(shop.upi_id)}</small></div>`:shop?.upi_id?`<p>UPI: ${escapeHtml(shop.upi_id)}</p>`:''}<p class="thanks">${t('receiptThank')}</p></body></html>`);w.document.close();setTimeout(()=>w.print(),300)}
 

@@ -92,7 +92,7 @@
   <div class="toast" id="toast" role="status"></div>
   <dialog id="localShopDialog" class="dialog"><form method="dialog" id="localShopForm"><button class="dialog-close" value="cancel" aria-label="Close">×</button><p class="eyebrow">SHOP SETUP</p><h2>Your shop details</h2><p class="subheading">These details appear on every printed bill.</p><label><span>Shop name</span><input id="localShopName" required placeholder="e.g. Kadhar Bhavan" /></label><label><span>UPI ID <small style="color:#e05">(shown as QR on bill)</small></span><input id="localShopUpi" autocomplete="off" placeholder="shopname@bank" /></label><label><span>Address (optional)</span><input id="localShopAddress" placeholder="Street, City" /></label><label><span>Phone (optional)</span><input id="localShopPhone" inputmode="tel" placeholder="+91 98765 43210" /></label><div class="dialog-actions"><button type="button" class="secondary-button" id="cancelLocalShop">Cancel</button><button type="button" class="primary-button small" id="saveLocalShop">Save details</button></div><p class="auth-error" id="localShopError" role="alert"></p></form></dialog>
   <script src="config.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="./vendor/qrcode.min.js"></script>
   <script src="receipt-pdf.js"></script>
   <script src="default-items.js"></script>
   <script src="app.js"></script>
