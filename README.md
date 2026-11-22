@@ -1,8 +1,8 @@
-# Kadhar Bhavan Billing
+# Nesavu | Textile Business Suite
 
-A mobile-first billing app starter for multiple shops and multiple staff accounts per shop. Phase 2 (inventory, stock alerts and reports) is deliberately out of scope.
+A premium, mobile-first textile business and billing app for multiple shops and staff accounts. Kadhar Bhavan is the initial shop; Nesavu is the platform brand.
 
-The billing screen follows the supplied Stitch export's textile POS direction: heritage terracotta accents, warm paper-like surfaces, Tamil-first identity, dense product tiles, and a split catalog/cart layout. GST, inventory, returns and reports shown in some Stitch screens are intentionally excluded from this first scope.
+The billing experience uses a Tamil-first heritage textile identity, warm ivory surfaces, refined plum and antique-gold accents, product tiles, and a counter-first catalog/cart layout.
 
 ## What works in this starter
 
@@ -27,11 +27,11 @@ Without Supabase configured, this build saves data in the current browser only a
 
 An owner can use the registration screen to create the first business and shop. If email confirmation is enabled in Supabase, confirm the message and sign in again in the same browser to finish shop setup. The app keeps the pending shop details locally until setup completes; it does not store the password. Staff accounts can be invited by email from Shop setup after deploying the `invite-shop-staff` Edge Function. An existing owner can register additional shops in the app. Staff UPI changes stay pending until an owner approves them.
 
-After signing in, shop users can choose bilingual textile and devotional item presets from **Shop setup → Item catalog**, **Items → Choose from default list**, or **Add new item → Choose from default list**. Select one or more presets to add them to the catalog at ₹0, then set each item's price before billing. The setup tab also lists current shop items with an **Edit** action.
+Each catalog item stores its MRP and standard percentage discount; the app calculates the selling price and applies it to billing. The bill shows total savings from product discounts plus the bill-level discount. Select one or more presets from **Shop setup → Item catalog**, **Items → Choose from default list**, or **Add new item → Choose from default list** to add them at ₹0, then set MRP and discount before billing.
 
 Cloud sign-in automatically expires after one hour without user activity in the browser. Activity in another open tab resets the same timer.
 
-For an existing Supabase project, run [`supabase/fix-bill-id.sql`](./supabase/fix-bill-id.sql) in the Supabase SQL Editor before creating bills. It updates the bill RPC and adds payment-method storage; existing bills default to UPI. Run [`supabase/update-shop-profile.sql`](./supabase/update-shop-profile.sql) to enable owner-managed shop profile edits. To enable secure short bill links, run [`supabase/bill-pdf-storage.sql`](./supabase/bill-pdf-storage.sql), deploy `bill-receipt-short-link` with JWT verification disabled, and set the `BILLING_APP_ORIGIN` function secret to `https://kadharbharavanbillingsos.divyabharathithangavel.workers.dev`. Redeploy `cleanup-bill-receipts` so its scheduled job also removes expired link records. If you see `null value in column "id" of relation "bills" violates not-null constraint`, the deployed bill RPC is outdated; running the bill migration replaces it without requiring the full schema to be rerun. Reload the hosted app after the migrations complete.
+For an existing Supabase project, run [`supabase/fix-bill-id.sql`](./supabase/fix-bill-id.sql) first if the bill ID/payment-method migration is still needed, then run [`supabase/product-mrp-discounts.sql`](./supabase/product-mrp-discounts.sql) to add MRP, standard discounts, and bill-line price snapshots; existing items keep their current price as MRP with no discount. Run [`supabase/update-shop-profile.sql`](./supabase/update-shop-profile.sql) to enable owner-managed shop profile edits. To enable secure short bill links, run [`supabase/bill-pdf-storage.sql`](./supabase/bill-pdf-storage.sql), deploy `bill-receipt-short-link` with JWT verification disabled, and set the `BILLING_APP_ORIGIN` function secret to `https://kadharbharavanbillingsos.nesavu.workers.dev`. Redeploy `cleanup-bill-receipts` so its scheduled job also removes expired link records. If you see `null value in column "id" of relation "bills" violates not-null constraint`, the deployed bill RPC is outdated; running the bill migration replaces it without requiring the full schema to be rerun. Reload the hosted app after the migrations complete.
 
 The app needs a successful sign-in and first shop sync while online. It can then save bills offline and sync them after reconnecting; authentication, item changes, and shop setup still need internet. GST has been left out of this version.
 

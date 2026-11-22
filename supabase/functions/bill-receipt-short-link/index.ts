@@ -197,7 +197,7 @@ Deno.serve(async (request) => {
         am: Number(bills[0].total).toFixed(2),
         cu: "INR",
         tn: `Bill ${bills[0].bill_number}`,
-      })}`;
+      }).toString().replace(/\+/g, "%20")}`;
       paymentPageUrl(paymentUri);
     }
 

@@ -1,4 +1,4 @@
-const CACHE='kb-billing-shell-v34';
+const CACHE='kb-billing-shell-v38';
 const FILES=['./','./index.html','./styles.css','./app.js','./default-items.js','./receipt-pdf.js','./vendor/qrcode.min.js','./upi-pay.html','./upi-pay.js','./config.js','./manifest.webmanifest'];
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);await cache.addAll(FILES);await self.skipWaiting()})()));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
