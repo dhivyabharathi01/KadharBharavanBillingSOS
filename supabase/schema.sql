@@ -112,7 +112,10 @@ create policy "members read their shop" on public.shops for select to authentica
 create policy "members read shop memberships" on public.shop_members for select to authenticated using (user_id=auth.uid() or public.is_shop_member(shop_id));
 create policy "members read their UPI requests" on public.shop_upi_change_requests for select to authenticated using (requested_by=auth.uid() or public.is_shop_owner(shop_id));
 create policy "members request UPI changes" on public.shop_upi_change_requests for insert to authenticated with check (requested_by=auth.uid() and public.is_shop_member(shop_id) and status='pending');
-create policy "members manage their shop items" on public.items for all to authenticated using (public.is_shop_member(shop_id)) with check (public.is_shop_member(shop_id));
+create policy "members read their shop items" on public.items for select to authenticated using (public.is_shop_member(shop_id));
+create policy "owners add shop items" on public.items for insert to authenticated with check (public.is_shop_owner(shop_id));
+create policy "owners update shop items" on public.items for update to authenticated using (public.is_shop_owner(shop_id)) with check (public.is_shop_owner(shop_id));
+create policy "owners delete shop items" on public.items for delete to authenticated using (public.is_shop_owner(shop_id));
 create policy "members read their shop bills" on public.bills for select to authenticated using (public.is_shop_member(shop_id));
 create policy "members read their shop bill items" on public.bill_items for select to authenticated using (public.is_shop_member(shop_id));
 
@@ -120,7 +123,7 @@ revoke all on public.businesses,public.shops,public.shop_members,public.shop_upi
 grant usage on schema public to authenticated;
 grant select on public.businesses,public.shops,public.shop_members,public.bills,public.bill_items,public.shop_upi_change_requests to authenticated;
 grant insert on public.shop_upi_change_requests to authenticated;
-grant select,insert,update on public.items to authenticated;
+grant select,insert,update,delete on public.items to authenticated;
 revoke all on function public.is_shop_member(uuid) from public,anon;
 grant execute on function public.is_shop_member(uuid) to authenticated;
 revoke all on function public.is_shop_owner(uuid) from public,anon;
@@ -159,6 +162,25 @@ begin
 end;
 $$;
 
+create or replace function public.add_shop_staff(p_shop_id uuid,p_email text,p_display_name text)
+returns uuid language plpgsql security definer set search_path = public
+as $$
+declare v_user_id uuid; v_added_user_id uuid;
+begin
+  if not public.is_shop_owner(p_shop_id) then raise exception 'Only the shop owner can add staff'; end if;
+  if nullif(trim(p_email),'') is null or position('@' in trim(p_email)) < 2 then raise exception 'Enter a valid staff email address'; end if;
+  if nullif(trim(p_display_name),'') is null then raise exception 'Enter the staff member name'; end if;
+  select id into v_user_id from auth.users where lower(email)=lower(trim(p_email)) limit 1;
+  if v_user_id is null then raise exception 'No account found for this email. Ask the staff member to register first'; end if;
+  insert into public.shop_members(shop_id,user_id,display_name,role)
+  values(p_shop_id,v_user_id,trim(p_display_name),'staff')
+  on conflict(shop_id,user_id) do nothing
+  returning user_id into v_added_user_id;
+  if v_added_user_id is null then raise exception 'This account is already assigned to this shop'; end if;
+  return v_user_id;
+end;
+$$;
+
 create or replace function public.review_shop_upi_change(p_request_id uuid,p_approved boolean)
 returns void language plpgsql security definer set search_path = public
 as $$
@@ -188,6 +210,8 @@ declare
   v_number text;
   v_existing_created timestamptz;
   v_bill_id uuid := gen_random_uuid();
+  v_existing_bill_id uuid;
+  v_existing_subtotal numeric(12,2);
   v_subtotal numeric(12,2) := 0;
   v_existing_discount numeric(12,2);
   v_total numeric(12,2);
@@ -197,10 +221,10 @@ begin
     raise exception 'Not a member of this shop';
   end if;
   if p_client_request_id is not null then
-    select id,bill_number,created_at,subtotal,discount,total into v_bill_id,v_number,v_existing_created,v_subtotal,v_existing_discount,v_total
+    select id,bill_number,created_at,subtotal,discount,total into v_existing_bill_id,v_number,v_existing_created,v_existing_subtotal,v_existing_discount,v_total
       from public.bills where shop_id=p_shop_id and client_request_id=p_client_request_id;
     if found then
-      return jsonb_build_object('id',v_bill_id,'bill_number',v_number,'created_at',v_existing_created,'subtotal',v_subtotal,'discount',v_existing_discount,'total',v_total);
+      return jsonb_build_object('id',v_existing_bill_id,'bill_number',v_number,'created_at',v_existing_created,'subtotal',v_existing_subtotal,'discount',v_existing_discount,'total',v_total);
     end if;
   end if;
   if jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
@@ -249,6 +273,8 @@ revoke all on function public.register_business_shop(uuid,text,text,text,text) f
 grant execute on function public.register_business_shop(uuid,text,text,text,text) to authenticated;
 revoke all on function public.set_shop_upi_id(uuid,text) from public,anon;
 grant execute on function public.set_shop_upi_id(uuid,text) to authenticated;
+revoke all on function public.add_shop_staff(uuid,text,text) from public,anon;
+grant execute on function public.add_shop_staff(uuid,text,text) to authenticated;
 revoke all on function public.review_shop_upi_change(uuid,boolean) from public,anon;
 grant execute on function public.review_shop_upi_change(uuid,boolean) to authenticated;
 

@@ -6,23 +6,29 @@ The billing screen follows the supplied Stitch export's textile POS direction: h
 
 ## What works in this starter
 
-- Tamil / English interface toggle.
+- Tamil-first interface with a saved Tamil / English toggle across billing, catalog, history and shop setup.
 - Add and manage shop items with English and optional Tamil names.
 - Create bills with quantities and a bill-level discount.
+- Show the five most recently used catalog items on the billing screen; search to find any other item.
 - Save bill history locally in preview mode or in the shared shop database when connected; print a Tamil-capable receipt.
 - Mobile layout and an installable PWA shell.
 - Individual staff sign-in in Supabase mode; a preview staff switcher when cloud settings are empty.
 - One business with multiple shops, many-to-many user/shop membership, and an active-shop switcher.
 - Database-enforced shop isolation, shared per-shop catalog/history, and server-assigned bill numbers in Supabase mode.
-- Owner-only shop registration and UPI setup; staff UPI changes require owner approval. UPI payment QR is included on printed receipts when the shop has an approved UPI ID.
+- Owner/admin-only catalog changes and direct UPI updates; staff UPI changes require owner approval. Owners can create staff logins by email invitation from **Shop setup → Staff access**, or assign an existing account. UPI payment QR is included on printed receipts when the shop has an approved UPI ID.
 - Bills saved offline are queued per signed-in user and shop, then synced with idempotent bill IDs when the connection returns.
 - Receipt PDF generation with UPI QR and WhatsApp sharing through the device share sheet. If file sharing is unavailable, the PDF downloads and WhatsApp opens so it can be attached manually.
+- After saving a bill with a customer number, the app can open a prefilled WhatsApp message addressed to that number; bill history also keeps this option. The user must review and tap Send in WhatsApp. Personal WhatsApp messaging has no platform fee, though internet/data charges may apply. Bills without a customer number continue to offer PDF sharing or printing.
 
 ## Important: local preview vs. shared shop use
 
-Without Supabase configured, this build saves data in the current browser only and the staff switcher is a preview. To test real shared use, configure Supabase in `config.js`, run `supabase/schema.sql`, create a business and its shops, create individual Auth users, and add one `shop_members` row for each user/shop assignment. A user assigned only to Shop B cannot read or write Shop A data; adding a user to multiple shops grants access to each assigned shop. The active-shop selector only switches between shops already assigned to that signed-in user. See `supabase/SETUP.md` for the sequence.
+Without Supabase configured, this build saves data in the current browser only and the staff switcher is a preview. To test real shared use, configure Supabase in `config.js`, run `supabase/schema.sql`, create a business and its shops, and create the owner Auth account. Deploy `supabase/functions/invite-shop-staff` to invite staff from **Shop setup → Staff access**; configure Supabase Auth email delivery and the app redirect URL first. New staff receive an invitation to set their own password, while existing accounts can also be assigned. The Edge Function uses Supabase's server-side service-role environment and never exposes that key in browser code. Staff can create bills and view the catalog; only the shop owner can add, edit, or remove catalog items and directly update the UPI ID. Staff UPI changes still require owner approval. For existing projects, run `supabase/shop-owner-controls.sql` in the SQL Editor. See `supabase/SETUP.md` for the sequence.
 
-An owner can use the registration screen to create the first business and shop. If email confirmation is enabled in Supabase, confirm the message and sign in again in the same browser to finish shop setup. The app keeps the pending shop details locally until setup completes; it does not store the password. Staff accounts and their shop memberships are provisioned by an owner or project administrator. An existing owner can register additional shops in the app. Staff UPI changes stay pending until an owner approves them.
+An owner can use the registration screen to create the first business and shop. If email confirmation is enabled in Supabase, confirm the message and sign in again in the same browser to finish shop setup. The app keeps the pending shop details locally until setup completes; it does not store the password. Staff accounts can be invited by email from Shop setup after deploying the `invite-shop-staff` Edge Function. An existing owner can register additional shops in the app. Staff UPI changes stay pending until an owner approves them.
+
+After signing in, shop users can choose bilingual textile and devotional item presets from **Shop setup → Item catalog**, **Items → Choose from default list**, or **Add new item → Choose from default list**. The single-item flow fills the item form so its price can be entered before saving; bulk selection adds presets at ₹0. The setup tab also lists current shop items with an **Edit** action. Set each item's price before billing.
+
+For an existing Supabase project, run [`supabase/fix-bill-id.sql`](./supabase/fix-bill-id.sql) in the Supabase SQL Editor before creating bills. If you see `null value in column "id" of relation "bills" violates not-null constraint`, the deployed bill RPC is outdated; running this migration replaces it without requiring the full schema to be rerun. Reload the hosted app after the migration completes.
 
 The app needs a successful sign-in and first shop sync while online. It can then save bills offline and sync them after reconnecting; authentication, item changes, and shop setup still need internet. GST has been left out of this version.
 
